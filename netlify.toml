@@ -40,7 +40,15 @@
   from = "/static/*"
   to = "/static/:splat"
   status = 200
-
+  
+# =============================================================================
+# Encaminha chamadas de API para o backend no Render
+# =============================================================================
+[[redirects]]
+  from = "/api/*"
+  to = "https://verifica-ai-backend.onrender.com/api/:splat"
+  status = 200
+  force = true
 # -----------------------------------------------------------------------------
 # Headers de segurança e cache
 # -----------------------------------------------------------------------------
