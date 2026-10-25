@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#29316B">
+    <meta name="description" content="Histórico de verificações — VerificaAI.">
+    <title>VerificaAI — Histórico</title>
+    <script>
+        try {
+            var temaSalvo = localStorage.getItem('verificai_theme');
+            if (temaSalvo) document.documentElement.setAttribute('data-theme', temaSalvo);
+        } catch (e) {}
+    </script>
+    <link rel="stylesheet" href="/style/styleglobal.css">
+    <link rel="stylesheet" href="/style/style-historico.css">
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+</head>
+<body>
+
+    <header>
+        <a href="/" class="logo-link">
+            <img src="/img/Logo_header.png" alt="VerificaAI" class="brand-logo">
+        </a>
+        <div class="header-right">
+            <nav>
+                <ul>
+                    <li><a href="/">Pesquisa</a></li>
+                    <li><a href="/historico" class="active">Histórico</a></li>
+                    <li><a href="#" onclick="openApiKeyModal(); return false;" class="btn-apikey-nav">Chave API</a></li>
+                </ul>
+            </nav>
+            <button class="btn-menu-hamburger" type="button" onclick="toggleDrawer()"
+                    aria-label="Abrir menu" aria-controls="drawerOverlay" aria-expanded="false">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Drawer Lateral (Pop-up Lateral) -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawerOnOverlay(event)">
+        <div class="drawer">
+            <div class="drawer-header">
+                <h3 class="drawer-title">Menu de Navegação</h3>
+                <button class="drawer-close" type="button" onclick="toggleDrawer()" aria-label="Fechar menu">&times;</button>
+            </div>
+            <div class="drawer-nav">
+                <a href="/" class="drawer-link">
+                    <span>Pesquisa</span>
+                    <span>→</span>
+                </a>
+                <a href="/historico" class="drawer-link">
+                    <span>Histórico</span>
+                    <span>→</span>
+                </a>
+                <a href="/sobre" class="drawer-link">
+                    <span>Sobre Nós</span>
+                    <span>→</span>
+                </a>
+                <button class="drawer-link" type="button" onclick="openApiKeyModal(); closeDrawer();"
+                        style="width: 100%; text-align: left; cursor: pointer;">
+                    <span>Chave API</span>
+                    <span>→</span>
+                </button>
+                <button class="drawer-link theme-switch-btn" type="button" onclick="toggleThemeWithAnimation(this)" style="width: 100%; text-align: left; cursor: pointer;">
+                    <span>Tema: <span id="themeLabelName">Claro</span></span>
+                    <span class="icon-anim" id="themeIconAnim">☼</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <main class="historico-main">
+        <div class="historico-header-row">
+            <div>
+                <h1>Histórico de Verificações</h1>
+                <p class="historico-sub">Registro local das suas verificações, salvo apenas neste navegador. Nada é enviado ao servidor.</p>
+            </div>
+            <button class="btn-danger-outline" id="btnClearHistory" onclick="limparHistorico()" style="display:none;">Limpar Histórico</button>
+        </div>
+
+        <div class="historico-list" id="historicoList">
+            <div class="loading-state">Carregando histórico…</div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-disclaimer">A análise utiliza IA, podem existir erros.</div>
+    </footer>
+
+    <!-- Modal da API Key -->
+    <div class="modal-overlay" id="apiKeyModal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Configurar Chave da API Groq</h3>
+                <button class="modal-close" type="button" onclick="closeApiKeyModal()" aria-label="Fechar">&times;</button>
+            </div>
+            <p class="modal-desc">
+                Para verificar notícias com IA, insira sua chave da API Groq (gratuita). 
+                Sua chave é salva com segurança no armazenamento local do seu navegador (localStorage).
+            </p>
+            <div class="modal-input-group">
+                <input type="password" id="apiKeyInput" placeholder="gsk_..." autocomplete="current-password">
+                <button class="btn-toggle-pass" onclick="toggleApiKeyVisibility()" type="button">Exibir</button>
+            </div>
+            <div class="modal-links">
+                <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Obter chave gratuita no Groq Console ↗</a>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="saveApiKey()">Salvar Chave</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Detalhes do Histórico -->
+    <div class="modal-overlay" id="detalhesModal" style="display: none;">
+        <div class="modal-card detalhes-card">
+            <div class="modal-header">
+                <h3 id="detalhesTitulo">Detalhes da Verificação</h3>
+                <button class="modal-close" type="button" onclick="closeDetalhesModal()" aria-label="Fechar detalhes">&times;</button>
+            </div>
+            <div class="detalhes-content" id="detalhesContent">
+                <!-- Conteúdo preenchido dinamicamente -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="closeDetalhesModal()">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/script/script.js"></script>
+    <script src="/script/historico.js"></script>
+</body>
+</html>

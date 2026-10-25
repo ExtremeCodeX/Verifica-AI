@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#29316B">
+    <title>VerificaAI — Sobre Nós</title>
+    <script>
+        try {
+            var temaSalvo = localStorage.getItem('verificai_theme');
+            if (temaSalvo) document.documentElement.setAttribute('data-theme', temaSalvo);
+        } catch (e) {}
+    </script>
+    <link rel="stylesheet" href="/style/styleglobal.css">
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+</head>
+<body>
+    <header>
+        <a href="/" class="logo-link">
+            <img src="/img/Logo_header.png" alt="VerificaAI" class="brand-logo">
+        </a>
+        <div class="header-right">
+            <nav>
+                <ul>
+                    <li><a href="/">Pesquisa</a></li>
+                    <li><a href="/historico">Histórico</a></li>
+                    <li><a href="/sobre" class="active">Sobre Nós</a></li>
+                </ul>
+            </nav>
+            <button class="btn-menu-hamburger" type="button" onclick="toggleDrawer()"
+                    aria-label="Abrir menu" aria-controls="drawerOverlay" aria-expanded="false">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Drawer Lateral (Pop-up Lateral) -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawerOnOverlay(event)">
+        <div class="drawer">
+            <div class="drawer-header">
+                <h3 class="drawer-title">Menu de Navegação</h3>
+                <button class="drawer-close" type="button" onclick="toggleDrawer()" aria-label="Fechar menu">&times;</button>
+            </div>
+            <div class="drawer-nav">
+                <a href="/" class="drawer-link">
+                    <span>Pesquisa</span>
+                    <span>→</span>
+                </a>
+                <a href="/historico" class="drawer-link">
+                    <span>Histórico</span>
+                    <span>→</span>
+                </a>
+                <a href="/sobre" class="drawer-link">
+                    <span>Sobre Nós</span>
+                    <span>→</span>
+                </a>
+                <button class="drawer-link theme-switch-btn" type="button" onclick="toggleThemeWithAnimation(this)" style="width: 100%; text-align: left; cursor: pointer;">
+                    <span>Tema: <span id="themeLabelName">Claro</span></span>
+                    <span class="icon-anim" id="themeIconAnim">☼</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <main style="padding: 60px 40px; max-width: 800px; margin: 0 auto;">
+        <h1>Sobre Nós</h1>
+        <p>Página em construção para apresentação do projeto VerificaAI.</p>
+    </main>
+
+    <footer>
+        <div class="footer-disclaimer">A análise utiliza IA, podem existir erros.</div>
+    </footer>
+
+    <script src="/script/script.js"></script>
+</body>
+</html>

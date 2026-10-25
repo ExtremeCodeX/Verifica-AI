@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#29316B">
+    <meta name="description" content="Resultado da verificação de notícia pela IA VerificaAI.">
+    <title>VerificaAI — Resultado</title>
+    <script>
+        try {
+            var temaSalvo = localStorage.getItem('verificai_theme');
+            if (temaSalvo) document.documentElement.setAttribute('data-theme', temaSalvo);
+        } catch (e) {}
+    </script>
+    <link rel="stylesheet" href="/style/styleglobal.css">
+    <link rel="stylesheet" href="/style/style-resultado.css">
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+</head>
+<body>
+
+    <header>
+        <a href="/" class="logo-link">
+            <img src="/img/Logo_header.png" alt="VerificaAI" class="brand-logo">
+        </a>
+        <div class="header-right">
+            <nav>
+                <ul>
+                    <li><a href="/">Pesquisa</a></li>
+                    <li><a href="/historico">Histórico</a></li>
+                    <li><a href="#" onclick="openApiKeyModal(); return false;" class="btn-apikey-nav">Chave API</a></li>
+                </ul>
+            </nav>
+            <button class="btn-menu-hamburger" type="button" onclick="toggleDrawer()"
+                    aria-label="Abrir menu" aria-controls="drawerOverlay" aria-expanded="false">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Drawer Lateral (Pop-up Lateral) -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawerOnOverlay(event)">
+        <div class="drawer">
+            <div class="drawer-header">
+                <h3 class="drawer-title">Menu de Navegação</h3>
+                <button class="drawer-close" type="button" onclick="toggleDrawer()" aria-label="Fechar menu">&times;</button>
+            </div>
+            <div class="drawer-nav">
+                <a href="/" class="drawer-link">
+                    <span>Pesquisa</span>
+                    <span>→</span>
+                </a>
+                <a href="/historico" class="drawer-link">
+                    <span>Histórico</span>
+                    <span>→</span>
+                </a>
+                <a href="/sobre" class="drawer-link">
+                    <span>Sobre Nós</span>
+                    <span>→</span>
+                </a>
+                <button class="drawer-link" type="button" onclick="openApiKeyModal(); closeDrawer();"
+                        style="width: 100%; text-align: left; cursor: pointer;">
+                    <span>Chave API</span>
+                    <span>→</span>
+                </button>
+                <button class="drawer-link theme-switch-btn" type="button" onclick="toggleThemeWithAnimation(this)" style="width: 100%; text-align: left; cursor: pointer;">
+                    <span>Tema: <span id="themeLabelName">Claro</span></span>
+                    <span class="icon-anim" id="themeIconAnim">☼</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <main class="resultado-main">
+
+        <!-- ── Apuração Visual Animada ── -->
+        <div class="apuration-box" id="apurationBox">
+            <div class="apuration-visual" id="apurationVisual">
+                <div class="anim-pulse" id="apurationAnimElem"></div>
+            </div>
+            <div class="apuration-content" style="display: flex; flex-direction: column; gap: 6px; align-items: center;">
+                <div class="apuration-status-tag" id="apurationTag">Etapa 1 de 4</div>
+                <div class="apuration-title" id="apurationTitle">Selecionando palavras-chave essenciais…</div>
+                <div class="apuration-detail" id="apurationDetail">Analisando o texto e extraindo termos para varredura web</div>
+            </div>
+            <div class="apuration-progress-dots">
+                <span class="ap-dot active" id="apDot1"></span>
+                <span class="ap-dot" id="apDot2"></span>
+                <span class="ap-dot" id="apDot3"></span>
+                <span class="ap-dot" id="apDot4"></span>
+            </div>
+        </div>
+
+        <!-- ── Card de veredicto (Oculto inicialmente) ── -->
+        <div class="verdict-card carregando" id="verdictCard" style="display: none;">
+            <div class="verdict-score" id="verdictScore">
+                <span class="spinner"></span>
+            </div>
+            <div class="verdict-info">
+                <div class="verdict-label" id="verdictLabel">Verificação Concluída</div>
+                <div class="verdict-sub"  id="verdictSub">Grau de Veracidade Factual</div>
+            </div>
+        </div>
+
+        <!-- ── Resumo da IA (aparece após resultado) ── -->
+        <div class="resumo-card" id="resumoCard" style="display:none;">
+            <h3>Análise Factual da IA</h3>
+            <p id="resumoTexto"></p>
+        </div>
+
+        <!-- ── Artigos relacionados (aparece após resultado) ── -->
+        <div class="artigos-card" id="artigosCard" style="display:none;">
+            <h3>Fontes Jornalísticas Consultadas</h3>
+            <div id="artigosList"></div>
+            <button class="btn-primary" id="btnComparar" onclick="abrirComparacao()" style="margin-top: 15px; display:none; width: 100%;">Comparar Fontes Lado a Lado</button>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="footer-disclaimer">A análise utiliza IA, podem existir erros.</div>
+    </footer>
+
+    <!-- Modal da API Key -->
+    <div class="modal-overlay" id="apiKeyModal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Configurar Chave da API Groq</h3>
+                <button class="modal-close" type="button" onclick="closeApiKeyModal()" aria-label="Fechar">&times;</button>
+            </div>
+            <p class="modal-desc">
+                Para verificar notícias com Inteligência Artificial, insira sua chave da API Groq (gratuita). 
+                Sua chave é salva com segurança no armazenamento local do seu navegador (localStorage).
+            </p>
+            <div class="modal-input-group">
+                <input type="password" id="apiKeyInput" placeholder="gsk_..." autocomplete="current-password">
+                <button class="btn-toggle-pass" onclick="toggleApiKeyVisibility()" type="button">Exibir</button>
+            </div>
+            <div class="modal-links">
+                <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Obter chave gratuita no Groq Console ↗</a>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="saveApiKey()">Salvar Chave</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Comparação de Fontes -->
+    <div class="modal-overlay" id="comparacaoModal" style="display: none;">
+        <div class="modal-card comparacao-modal-card">
+            <div class="modal-header">
+                <h3>Comparação Analítica de Fontes</h3>
+                <button class="modal-close" type="button" onclick="closeComparacaoModal()" aria-label="Fechar comparação">&times;</button>
+            </div>
+            <p class="modal-desc">Análise comparativa da postura editorial de cada veículo consultado em relação aos fatos centrais:</p>
+            <div class="comparacao-grid" id="comparacaoGrid"></div>
+            <div class="modal-actions" style="margin-top: 20px;">
+                <button class="btn-primary" onclick="closeComparacaoModal()">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/script/script.js"></script>
+</body>
+</html>

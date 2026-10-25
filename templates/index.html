@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#29316B">
+    <meta name="description" content="Verifique a veracidade de notícias com Inteligência Artificial. Cole o texto ou URL e receba o diagnóstico completo em segundos.">
+    <title>VerificaAI — Verificador de Notícias com IA</title>
+    <script>
+        try {
+            var temaSalvo = localStorage.getItem('verificai_theme');
+            if (temaSalvo) document.documentElement.setAttribute('data-theme', temaSalvo);
+        } catch (e) {}
+    </script>
+    <link rel="stylesheet" href="/style/styleglobal.css">
+    <link rel="stylesheet" href="/style/style-pesquisa.css">
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+</head>
+<body>
+
+    <header>
+        <a href="/" class="logo-link">
+            <img src="/img/Logo_header.png" alt="VerificaAI" class="brand-logo">
+        </a>
+        <div class="header-right">
+            <nav>
+                <ul>
+                    <li><a href="/" class="active">Pesquisa</a></li>
+                    <li><a href="/historico">Histórico</a></li>
+                    <li><a href="#" onclick="openApiKeyModal(); return false;" class="btn-apikey-nav">Chave API</a></li>
+                </ul>
+            </nav>
+            <button class="btn-menu-hamburger" type="button" onclick="toggleDrawer()"
+                    aria-label="Abrir menu" aria-controls="drawerOverlay" aria-expanded="false">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Drawer Lateral (Pop-up Lateral) -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawerOnOverlay(event)">
+        <div class="drawer">
+            <div class="drawer-header">
+                <h3 class="drawer-title">Menu de Navegação</h3>
+                <button class="drawer-close" type="button" onclick="toggleDrawer()" aria-label="Fechar menu">&times;</button>
+            </div>
+            <div class="drawer-nav">
+                <a href="/" class="drawer-link">
+                    <span>Pesquisa</span>
+                    <span>→</span>
+                </a>
+                <a href="/historico" class="drawer-link">
+                    <span>Histórico</span>
+                    <span>→</span>
+                </a>
+                <a href="/sobre" class="drawer-link">
+                    <span>Sobre Nós</span>
+                    <span>→</span>
+                </a>
+                <button class="drawer-link" type="button" onclick="openApiKeyModal(); closeDrawer();"
+                        style="width: 100%; text-align: left; cursor: pointer;">
+                    <span>Chave API</span>
+                    <span>→</span>
+                </button>
+                <button class="drawer-link theme-switch-btn" type="button" onclick="toggleThemeWithAnimation(this)" style="width: 100%; text-align: left; cursor: pointer;">
+                    <span>Tema: <span id="themeLabelName">Claro</span></span>
+                    <span class="icon-anim" id="themeIconAnim">☼</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <main class="search-main">
+        <div class="hero">
+            <h1>Cheque a veracidade de<br><span class="gradient-text">qualquer notícia</span></h1>
+
+            <p class="hero-sub">
+                Cole o texto ou URL de uma notícia e nossa IA consulta fontes
+                jornalísticas em tempo real para emitir o veredicto objetivo.
+            </p>
+
+            <div class="search-wrapper">
+
+                <!-- Barra de busca principal -->
+                <div class="search-bar">
+                    <textarea id="inputSearch"
+                              placeholder="Cole aqui o texto ou URL da notícia…"
+                              rows="2"
+                              oninput="autoResize(this)"></textarea>
+                    <button class="btn-search" id="btnBuscar" type="button" onclick="buscar()"
+                            aria-label="Verificar notícia" title="Verificar notícia">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Toggle do painel avançado -->
+                <button class="btn-advanced" id="btnAdvanced" onclick="toggleAdvanced()">
+                    Pesquisa Avançada
+                    <span class="chevron" id="chevron">▾</span>
+                </button>
+
+                <!-- Painel de opções avançadas -->
+                <div class="advanced-panel" id="advancedPanel">
+
+                    <!-- Número de artigos -->
+                    <div class="adv-section">
+                        <span class="adv-label">Número de artigos analisados</span>
+                        <div class="slider-row">
+                            <input type="range" class="adv-slider" id="sliderArtigos"
+                                   min="5" max="20" step="1" value="10"
+                                   oninput="document.getElementById('valArtigos').textContent = this.value">
+                            <span class="slider-val" id="valArtigos">10</span>
+                        </div>
+                    </div>
+
+                    <div class="adv-divider"></div>
+
+                    <!-- Idioma de busca -->
+                    <div class="adv-section">
+                        <span class="adv-label">Idioma de busca</span>
+                        <div class="pill-group" id="pillIdioma">
+                            <button class="pill selected" data-value="auto"  onclick="selectPill(this, 'pillIdioma')">Auto-detectar</button>
+                            <button class="pill"           data-value="pt"   onclick="selectPill(this, 'pillIdioma')">Português</button>
+                            <button class="pill"           data-value="en"   onclick="selectPill(this, 'pillIdioma')">English</button>
+                        </div>
+                    </div>
+
+                    <div class="adv-divider"></div>
+
+                    <!-- Tamanho do resumo -->
+                    <div class="adv-section">
+                        <span class="adv-label">Tamanho do resumo da IA</span>
+                        <div class="pill-group" id="pillResumo">
+                            <button class="pill"           data-value="curto"     onclick="selectPill(this, 'pillResumo')">Curto</button>
+                            <button class="pill selected"  data-value="medio"     onclick="selectPill(this, 'pillResumo')">Médio</button>
+                            <button class="pill"           data-value="detalhado" onclick="selectPill(this, 'pillResumo')">Detalhado</button>
+                        </div>
+                    </div>
+
+                    <div class="adv-divider"></div>
+
+                    <!-- Modelo de IA -->
+                    <div class="adv-section">
+                        <span class="adv-label">Modelo de IA</span>
+                        <select class="adv-select" id="selectModelo">
+                            <option value="openai/gpt-oss-120b" selected>GPT-OSS 120B — Padrão (maior precisão)</option>
+                            <option value="openai/gpt-oss-20b">GPT-OSS 20B — Alta velocidade</option>
+                        </select>
+                    </div>
+
+                    <div class="adv-divider"></div>
+
+                    <!-- Modo rigoroso -->
+                    <div class="adv-section">
+                        <span class="adv-label">Modo Rigoroso</span>
+                        <div class="toggle-row">
+                            <span class="toggle-desc">
+                                Exige ao menos 3 fontes independentes para classificar como VERDADEIRA.
+                                Recomendado para apurações de alto impacto.
+                            </span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggleRigoroso">
+                                <span class="toggle-track"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                </div><!-- /advanced-panel -->
+
+            </div><!-- /search-wrapper -->
+        </div><!-- /hero -->
+    </main>
+
+    <footer>
+        <div class="footer-disclaimer">A análise utiliza IA, podem existir erros.</div>
+    </footer>
+
+    <!-- Modal da API Key -->
+    <div class="modal-overlay" id="apiKeyModal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Configurar Chave da API Groq</h3>
+                <button class="modal-close" type="button" onclick="closeApiKeyModal()" aria-label="Fechar">&times;</button>
+            </div>
+            <p class="modal-desc">
+                Para verificar notícias com Inteligência Artificial, insira sua chave da API Groq (fornecida gratuitamente pela Groq). 
+                A chave é armazenada com segurança exclusiva no armazenamento local do navegador (localStorage).
+            </p>
+            <div class="modal-input-group">
+                <input type="password" id="apiKeyInput" placeholder="gsk_..." autocomplete="current-password">
+                <button class="btn-toggle-pass" onclick="toggleApiKeyVisibility()" type="button">Exibir</button>
+            </div>
+            <div class="modal-links">
+                <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Obter chave gratuita no console Groq ↗</a>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="saveApiKey()">Salvar Chave</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/script/script.js"></script>
+</body>
+</html>

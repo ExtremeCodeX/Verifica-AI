@@ -1,0 +1,30 @@
+# Dependências
+node_modules/
+package-lock.json.bak
+
+# Segredos e Credenciais
+apikey.txt
+.env
+*.pem
+*.key
+
+# Caches e Ambientes Legados
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Arquivos de Sistema e IDEs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Configurações locais e ambiente
+.ai-jail
+historico.json
+.opencode/
