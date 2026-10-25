@@ -17,6 +17,7 @@
   <a href="https://expressjs.com/"><img src="https://img.shields.io/badge/Express-4.x-000000?style=flat-square&logo=express&logoColor=white" alt="Express 4.x"></a>
   <a href="https://console.groq.com/"><img src="https://img.shields.io/badge/Groq_API-GPT--OSS-F55036?style=flat-square" alt="Groq API"></a>
   <a href="https://developer.mozilla.org/docs/Web/API/Server-sent_events"><img src="https://img.shields.io/badge/SSE-tempo_real-1D4ED8?style=flat-square" alt="Server-Sent Events"></a>
+  <a href="https://verifica-ai.netlify.app/"><img src="https://img.shields.io/badge/demo-online-046C4E?style=flat-square&logo=netlify&logoColor=white" alt="Demo online no Netlify"></a>
   <a href="#roadmap"><img src="https://img.shields.io/badge/status-funcional-046C4E?style=flat-square" alt="Status do projeto: funcional"></a>
   <a href="package.json"><img src="https://img.shields.io/badge/vers%C3%A3o-2.0.0-121212?style=flat-square" alt="Versão 2.0.0"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/licen%C3%A7a-MIT-990000?style=flat-square" alt="Licença MIT"></a>
@@ -30,8 +31,11 @@ Em um cenário em que uma alegação falsa circula mais rápido do que sua corre
 
 O projeto foi concebido como **Trabalho de Conclusão de Curso (TCC)** e combina rigor jornalístico, transparência metodológica e engenharia de software aplicada à integridade informacional.
 
+> **Experimente agora:** o VerificaAI está publicado em **[verifica-ai.netlify.app](https://verifica-ai.netlify.app/)**. Não é preciso instalar nada — basta abrir o site no navegador e informar sua chave gratuita do Groq para começar a verificar alegações.
+
 ## Sumário
 
+- [Acesso online](#acesso-online)
 - [Visão geral](#visão-geral)
 - [Funcionalidades](#funcionalidades)
 - [Pipeline de verificação](#pipeline-de-verificação)
@@ -48,6 +52,24 @@ O projeto foi concebido como **Trabalho de Conclusão de Curso (TCC)** e combina
 - [Contribuindo](#contribuindo)
 - [Licença](#licença)
 - [Documentação e referências](#documentação-e-referências)
+
+## Acesso online
+
+A forma mais rápida de usar o VerificaAI é pela versão hospedada:
+
+**[https://verifica-ai.netlify.app/](https://verifica-ai.netlify.app/)**
+
+O site roda o mesmo pipeline de verificação descrito neste documento — extração de termos, varredura no Google News, leitura integral das matérias e julgamento factual — com progresso em tempo real via SSE. Nenhuma instalação é necessária.
+
+| Item | Detalhe |
+| :--- | :--- |
+| **Chave Groq** | Obrigatória e gratuita. Cadastre em [console.groq.com/keys](https://console.groq.com/keys) e cole no botão **"Chave API"** do site. |
+| **Onde a chave fica** | Apenas no `localStorage` do seu navegador; ela não é persistida no servidor. |
+| **Histórico** | Também local, no seu navegador, limitado a 50 verificações. |
+| **Custo** | O uso do site é gratuito; o consumo é debitado da sua própria cota Groq. |
+| **Instalação local** | Opcional. Siga [Instalação](#instalação) caso queira executar o projeto na sua máquina ou contribuir com o código. |
+
+> A versão online é uma instância pública de demonstração. Para uso intensivo, apurações sensíveis ou desenvolvimento, prefira rodar o projeto localmente.
 
 ## Visão geral
 
@@ -303,6 +325,8 @@ O projeto foi endurecido para hospedagem pública. As decisões abaixo estão im
 
 ## Instalação
 
+> **Só quer testar?** Use a [versão online](https://verifica-ai.netlify.app/) e pule esta seção. A instalação local é destinada a quem deseja rodar o projeto na própria máquina, contribuir com o código ou fazer deploy da sua própria instância.
+
 ### Pré-requisitos
 
 | Requisito | Versão / observação |
@@ -345,7 +369,7 @@ curl -I http://localhost:3000
 
 ### Chave da API Groq (interface)
 
-1. Inicie o servidor e abra `http://localhost:3000`.
+1. Abra a [versão online](https://verifica-ai.netlify.app/) ou inicie o servidor local e acesse `http://localhost:3000`.
 2. Clique em **"Chave API"** no cabeçalho.
 3. Cole a chave no formato `gsk_...` e confirme em **"Salvar Chave"**.
 4. A chave é gravada em `localStorage` sob a chave `groq_api_key`.
@@ -369,12 +393,13 @@ PORT=8080 NODE_ENV=production TRUST_PROXY=1 npm start
 
 ## Como usar
 
-1. **Informe a alegação.** Cole o texto da notícia ou a URL de uma matéria pública.
-2. **Ajuste a apuração (opcional).** Abra "Pesquisa Avançada" e defina os parâmetros.
-3. **Acompanhe o pipeline.** A página de resultado exibe as quatro etapas, os termos extraídos, as queries e os veículos sendo lidos.
-4. **Leia o dossiê.** O card traz o veredito e o Grau de Veracidade; abaixo aparecem o resumo analítico e as fontes.
-5. **Compare fontes.** Use "Comparar Fontes Lado a Lado" para ver a postura de cada veículo.
-6. **Consulte o histórico.** A página `/historico` lista as verificações salvas neste navegador, com detalhes e exclusão individual.
+1. **Abra o VerificaAI.** Use a [versão online](https://verifica-ai.netlify.app/) ou acesse `http://localhost:3000` após a instalação local.
+2. **Informe a alegação.** Cole o texto da notícia ou a URL de uma matéria pública.
+3. **Ajuste a apuração (opcional).** Abra "Pesquisa Avançada" e defina os parâmetros.
+4. **Acompanhe o pipeline.** A página de resultado exibe as quatro etapas, os termos extraídos, as queries e os veículos sendo lidos.
+5. **Leia o dossiê.** O card traz o veredito e o Grau de Veracidade; abaixo aparecem o resumo analítico e as fontes.
+6. **Compare fontes.** Use "Comparar Fontes Lado a Lado" para ver a postura de cada veículo.
+7. **Consulte o histórico.** A página `/historico` lista as verificações salvas neste navegador, com detalhes e exclusão individual.
 
 ### Opções avançadas
 
@@ -394,6 +419,8 @@ PORT=8080 NODE_ENV=production TRUST_PROXY=1 npm start
 - **O modo rigoroso** é recomendado para apurações de alto impacto e temas polarizados.
 
 ## API HTTP e SSE
+
+> Os exemplos desta seção usam a instância local (`http://localhost:3000`). Para consumir a instância pública, substitua a URL base por `https://verifica-ai.netlify.app`.
 
 ### Rotas
 
@@ -494,6 +521,7 @@ O VerificaAI está **funcional em sua versão 2.0.0**. O roadmap abaixo prioriza
 | ✅ | Comparador de fontes | Modal lado a lado com postura de cada veículo. |
 | ✅ | Histórico local | Persistência no navegador, com detalhes, exclusão e limite de 50 itens. |
 | ✅ | Hardening de segurança | SSRF, prompt injection, rate limiting, Helmet, CSP e tokens de uso único. |
+| ✅ | Deploy público | Instância de demonstração publicada no Netlify: [verifica-ai.netlify.app](https://verifica-ai.netlify.app/). |
 | 🚧 | **Extensão Chrome/Firefox** | Checagem da aba ativa, menu de contexto e popup de veredito. |
 | 🚧 | **Filtros de fontes confiáveis** | Allowlist/denylist de veículos, peso por reputação, diversidade de domínios e priorização de agências de fact-checking. |
 | 🚧 | **Exportação de relatórios** | PDF com metodologia, fontes e timestamp; JSON para pesquisa; Markdown para publicação. |
