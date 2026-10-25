@@ -1,8 +1,3 @@
-/**
- * VerificaAI — Checker (Node.js)
- * Google News RSS + Groq SDK (GPT-OSS / Llama) + Cheerio Scraping
- */
-
 import * as cheerio from 'cheerio';
 import Parser from 'rss-parser';
 import { Groq } from 'groq-sdk';
@@ -24,10 +19,8 @@ const HEADERS_HTTP = {
     'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
 };
 
-// ── Defesa contra Prompt Injection ───────────────────────────────────────────
-// Todo conteúdo vindo do usuário (ou de páginas externas) é envolto em tags
-// delimitadoras. As tags são removidas do próprio texto para impedir que o
-// usuário "feche" o bloco e injete instruções fora dele.
+// O texto é delimitado por tags e as tags são removidas dele para impedir que o
+// conteúdo encerre o bloco e injete instruções fora dele.
 function envolverConteudoNaoConfiavel(tag, texto) {
     const limpo = String(texto ?? '').replace(new RegExp(`</?${tag}[^>]*>`, 'gi'), '');
     return `<${tag}>\n${limpo}\n</${tag}>`;
@@ -44,10 +37,9 @@ function ehPaywall(url) {
     }
 }
 
-// ── Parser JSON Seguro (Lida com blocos de raciocínio de modelos OSS) ─────────
 function parsearJsonSeguro(texto) {
     if (!texto) throw new Error("Resposta vazia da IA.");
-    
+
     const inicio = texto.indexOf('{');
     const fim = texto.lastIndexOf('}');
     if (inicio !== -1 && fim !== -1 && fim > inicio) {
@@ -55,7 +47,6 @@ function parsearJsonSeguro(texto) {
         try {
             return JSON.parse(jsonStr);
         } catch (e) {
-            // continua para outras tentativas
         }
     }
 
@@ -74,7 +65,6 @@ function parsearJsonSeguro(texto) {
     return JSON.parse(texto.trim());
 }
 
-// ── Step 1: Detectar idioma e extrair keywords via IA ────────────────────────
 async function detectarIdiomaEExtrairKeywords(noticia, apiKey, model) {
     const groq = new Groq({ apiKey });
     try {
@@ -129,7 +119,6 @@ Exemplo:
     }
 }
 
-// ── Step 2: Google News RSS Search ───────────────────────────────────────────
 async function buscarGoogleNews(query, idioma = 'en', maxArt = 10) {
     const hl = idioma === 'pt' ? 'pt-BR' : 'en-US';
     const gl = idioma === 'pt' ? 'BR' : 'US';
@@ -168,7 +157,6 @@ async function buscarGoogleNews(query, idioma = 'en', maxArt = 10) {
     }
 }
 
-// ── Step 3: Scraping do artigo completo ──────────────────────────────────────
 async function rasparArtigo(url, maxChars = 5000) {
     if (ehPaywall(url)) return '';
 
@@ -207,7 +195,6 @@ async function enriquecerArtigos(artigos, emit) {
     return artigos;
 }
 
-// ── Step 4: Reformulação de Queries ──────────────────────────────────────────
 async function reformularQueries(noticia, keywords, tentativa, apiKey, model) {
     const groq = new Groq({ apiKey });
     try {
@@ -238,7 +225,6 @@ Responda: {"queries": ["query ampla 1", "query ampla 2"]}`
     }
 }
 
-// ── Step 5: Coleta de Artigos ────────────────────────────────────────────────
 async function coletarArtigos(keywords, noticiaOriginal = '', maxArt = 10, forceIdioma = 'auto', apiKey, model, emit) {
     const resultados = {};
     const idioma = forceIdioma !== 'auto' ? forceIdioma : keywords.idioma;
@@ -268,7 +254,6 @@ async function coletarArtigos(keywords, noticiaOriginal = '', maxArt = 10, force
     return [Object.values(resultados), total];
 }
 
-// ── Step 6: Verificação com Groq ─────────────────────────────────────────────
 async function verificarNoticia(noticia, artigos, keywords, apiKey, modelo = 'openai/gpt-oss-120b', tamResumo = 'medio', rigoroso = false) {
     const groq = new Groq({ apiKey });
 
@@ -343,7 +328,6 @@ RESPONDA APENAS COM JSON válido, sem texto extra:
     return parsearJsonSeguro(texto);
 }
 
-// ── Executar Verificação Completa ────────────────────────────────────────────
 export async function executarVerificacao(noticia, opcoes = {}, apiKey, emit) {
     const maxArt = parseInt(opcoes.max_artigos || 10, 10);
     const modelo = opcoes.modelo || 'openai/gpt-oss-120b';
@@ -353,7 +337,6 @@ export async function executarVerificacao(noticia, opcoes = {}, apiKey, emit) {
 
     let textoNoticia = noticia.trim();
 
-    // Se a entrada for uma URL válida, realiza o scraping prévio do conteúdo da página
     if (textoNoticia.startsWith('http://') || textoNoticia.startsWith('https://')) {
         if (emit) emit({ type: 'step', step: 1, msg: 'Acessando e extraindo conteúdo da URL informada...' });
         const conteudoUrl = await rasparArtigo(textoNoticia);

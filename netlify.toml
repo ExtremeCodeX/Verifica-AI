@@ -1,0 +1,62 @@
+# =============================================================================
+# VerificaAI — configuração de deploy estático na Netlify
+# =============================================================================
+# O build copia os templates HTML para a raiz de dist/ e os assets para
+# dist/static/, mantendo as referências absolutas /static/... usadas no HTML.
+# =============================================================================
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NPM_FLAGS = "--omit=dev"
+
+# -----------------------------------------------------------------------------
+# Rotas amigáveis (mesmas URLs servidas pelo Express)
+# -----------------------------------------------------------------------------
+[[redirects]]
+  from = "/resultado"
+  to = "/resultado.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/historico"
+  to = "/historico.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/sobre"
+  to = "/sobre.html"
+  status = 200
+  force = true
+
+# Garante que os assets de /static/* sejam resolvidos dentro de dist/static/.
+# Arquivos existentes têm prioridade; a regra atua como fallback seguro.
+[[redirects]]
+  from = "/static/*"
+  to = "/static/:splat"
+  status = 200
+
+# -----------------------------------------------------------------------------
+# Headers de segurança e cache
+# -----------------------------------------------------------------------------
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"

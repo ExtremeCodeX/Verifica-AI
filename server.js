@@ -1,9 +1,3 @@
-/**
- * =============================================================
- *   VerificaAI — Servidor Express (Node.js)
- * =============================================================
- */
-
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -19,16 +13,11 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Confia no proxy reverso (nginx, Render, Railway, etc.) para obter o IP real
-// do cliente. Ativar somente quando a aplicação estiver atrás de um proxy.
 if (process.env.TRUST_PROXY === '1') {
     app.set('trust proxy', 1);
 }
 
-// ── Cabeçalhos de Segurança ──────────────────────────────────
-// A CSP mantém 'unsafe-inline' em script-src porque os templates usam
-// manipuladores inline (onclick="..."). Isso deve ser removido no futuro,
-// migrando os handlers para addEventListener.
+// 'unsafe-inline' é necessário porque os templates usam handlers onclick inline.
 app.use(helmet({
     contentSecurityPolicy: {
         useDefaults: false,
@@ -50,9 +39,7 @@ app.use(helmet({
     crossOriginResourcePolicy: { policy: 'same-origin' },
 }));
 
-// ── CORS restrito ────────────────────────────────────────────
-// Sem CORS_ORIGIN definido, apenas a própria origem pode consumir a API.
-// Para permitir domínios específicos: CORS_ORIGIN="https://app.exemplo.com"
+// Sem CORS_ORIGIN, apenas a própria origem consome a API.
 const origensPermitidas = (process.env.CORS_ORIGIN || '')
     .split(',')
     .map((origem) => origem.trim())
@@ -63,9 +50,14 @@ app.use(cors(origensPermitidas.length > 0
     : { origin: false }));
 
 app.use(express.json({ limit: '1mb' }));
+
+// Assets padronizados em /static/* (mesmo caminho usado no build estático da Netlify).
+app.use('/static', express.static(path.join(__dirname, 'static')));
+
+// Compatibilidade com URLs antigas (/style/*, /img/*, /script/*) usadas em links
+// salvos ou cache antigo. Pode ser removido quando não houver mais referências.
 app.use(express.static(path.join(__dirname, 'static')));
 
-// ── Rate limiting ────────────────────────────────────────────
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 300,
@@ -84,9 +76,8 @@ const checkLimiter = rateLimit({
 
 app.use('/api/', apiLimiter);
 
-// ── Dicionário temporário: token → { noticia, opcoes, apiKey, timeoutId } ──
 const pendingJobs = new Map();
-const JOB_TTL_MS = 2 * 60 * 1000; // 2 minutos
+const JOB_TTL_MS = 2 * 60 * 1000;
 const MAX_PENDING_JOBS = 150;
 const MAX_NOTICIA_CHARS = 20000;
 
@@ -110,7 +101,6 @@ function normalizarOpcoes(opcoes) {
     };
 }
 
-// ── Rotas de Páginas ─────────────────────────────────────────
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'templates', 'index.html'));
 });
@@ -127,7 +117,6 @@ app.get('/sobre', (req, res) => {
     res.sendFile(path.join(__dirname, 'templates', 'sobre.html'));
 });
 
-// ── Endpoint 1: Iniciar Verificação ──────────────────────────
 app.post('/api/check/start', checkLimiter, (req, res) => {
     const { noticia, opcoes, apiKey } = req.body || {};
 
@@ -153,7 +142,6 @@ app.post('/api/check/start', checkLimiter, (req, res) => {
 
     const token = uuidv4();
 
-    // Remove o job automaticamente caso o cliente nunca abra o stream SSE.
     const timeoutId = setTimeout(() => {
         pendingJobs.delete(token);
     }, JOB_TTL_MS);
@@ -168,7 +156,6 @@ app.post('/api/check/start', checkLimiter, (req, res) => {
     res.json({ token });
 });
 
-// ── Endpoint 2: SSE Stream ───────────────────────────────────
 app.get('/api/check/stream/:token', (req, res) => {
     const { token } = req.params;
     const job = pendingJobs.get(token);
@@ -177,19 +164,17 @@ app.get('/api/check/stream/:token', (req, res) => {
         return res.status(404).json({ erro: 'Token inválido ou expirado.' });
     }
 
-    // Token de uso único
     pendingJobs.delete(token);
     clearTimeout(job.timeoutId);
 
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache, no-transform');
     res.setHeader('Connection', 'keep-alive');
-    res.setHeader('X-Accel-Buffering', 'no'); // evita buffering no nginx
+    res.setHeader('X-Accel-Buffering', 'no');
     res.flushHeaders();
 
     let encerrado = false;
 
-    // Impede escrita após o cliente desconectar.
     req.on('close', () => {
         encerrado = true;
     });
@@ -220,12 +205,10 @@ app.get('/api/check/stream/:token', (req, res) => {
     })();
 });
 
-// ── 404 para rotas de API inexistentes ───────────────────────
 app.use('/api', (req, res) => {
     res.status(404).json({ erro: 'Rota não encontrada.' });
 });
 
-// ── Tratamento centralizado de erros ─────────────────────────
 app.use((err, req, res, next) => {
     if (!err) return next();
 

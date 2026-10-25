@@ -8,6 +8,9 @@ apikey.txt
 *.pem
 *.key
 
+# Build estático (Netlify)
+dist/
+
 # Caches e Ambientes Legados
 __pycache__/
 *.pyc

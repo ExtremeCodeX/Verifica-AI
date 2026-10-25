@@ -1,10 +1,3 @@
-/**
- * ─────────────────────────────────────────────────────────────
- *   script.js — VerificaAI (Node.js version)
- * ─────────────────────────────────────────────────────────────
- */
-
-// ── Tema (Claro / Escuro) ────────────────────────────────────
 function initTheme() {
     var savedTheme = localStorage.getItem('verificai_theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
@@ -21,11 +14,10 @@ function updateThemeUI(theme) {
         icon.textContent = theme === 'dark' ? '☾' : '☼';
     }
 
-    // O header permanece azul nos dois temas e usa a marca clara
-    // (wordmark branco + detetive em periwinkle), sem fundo.
+    // O header permanece azul nos dois temas.
     var logos = document.querySelectorAll('.brand-logo');
     logos.forEach(function(img) {
-        img.src = '/img/Logo_header.png';
+        img.src = '/static/img/Logo_header.png';
     });
 }
 
@@ -45,7 +37,6 @@ function toggleThemeWithAnimation(btn) {
 
 initTheme();
 
-// ── Drawer (Menu Lateral) ─────────────────────────────────────
 function toggleDrawer() {
     var overlay = document.getElementById('drawerOverlay');
     if (overlay) {
@@ -73,7 +64,6 @@ function closeDrawerOnOverlay(e) {
     }
 }
 
-// ── Nav: marca o link da página atual como active ─────────────
 document.addEventListener('DOMContentLoaded', function () {
     var path = window.location.pathname;
     document.querySelectorAll('nav a').forEach(function (a) {
@@ -82,7 +72,6 @@ document.addEventListener('DOMContentLoaded', function () {
     initTheme();
 });
 
-// ── Gestão da API Key (LocalStorage & Modal) ──────────────────
 function getApiKey() {
     return localStorage.getItem('groq_api_key') || '';
 }
@@ -132,7 +121,7 @@ function saveApiKey() {
 
     localStorage.setItem('groq_api_key', key);
     closeApiKeyModal();
-    
+
     var btn = document.querySelector('.modal-primary, .btn-primary');
     if (btn) {
         var oldText = btn.textContent;
@@ -149,13 +138,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-// ── Auto-resize do textarea ───────────────────────────────────
 function autoResize(el) {
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 160) + 'px';
 }
 
-// ── Toggle do painel avançado ─────────────────────────────────
 function toggleAdvanced() {
     var panel   = document.getElementById('advancedPanel');
     var chevron = document.getElementById('chevron');
@@ -163,7 +150,6 @@ function toggleAdvanced() {
     if (chevron) chevron.classList.toggle('open', open);
 }
 
-// ── Seleção de pill (radio dentro de grupos) ──────────────────
 function selectPill(btn, groupId) {
     document.querySelectorAll('#' + groupId + ' .pill').forEach(function (p) {
         p.classList.remove('selected');
@@ -171,7 +157,6 @@ function selectPill(btn, groupId) {
     btn.classList.add('selected');
 }
 
-// ── Coleta as opções avançadas do painel ──────────────────────
 function coletarOpcoes() {
     var opcoes = {};
 
@@ -193,7 +178,6 @@ function coletarOpcoes() {
     return opcoes;
 }
 
-// ── Buscar: verifica se tem API key, salva no sessionStorage e navega ──
 function buscar() {
     var apiKey = getApiKey();
     if (!apiKey) {
@@ -217,7 +201,6 @@ function buscar() {
     window.location.href = '/resultado';
 }
 
-// Enter no textarea dispara a busca
 document.addEventListener('DOMContentLoaded', function () {
     var input = document.getElementById('inputSearch');
     if (input) {
@@ -229,7 +212,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ── Lógica exclusiva da página de resultado ───────────────
     var verdictCard  = document.getElementById('verdictCard');
     if (!verdictCard) return;
 
@@ -349,7 +331,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (tag) tag.textContent = 'Etapa ' + n + ' de 4';
         if (title) title.textContent = msg || 'Processando apuração…';
 
-        // Atualiza animação visual conforme a etapa
         if (visual) {
             if (n === 1) {
                 visual.innerHTML = '<div class="anim-pulse"></div>';
@@ -366,7 +347,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // Atualiza bolinhas de progresso
         for (var i = 1; i <= 4; i++) {
             var dot = document.getElementById('apDot' + i);
             if (dot) {
@@ -496,8 +476,8 @@ function abrirComparacao() {
     }
 
     artigos.forEach(function (art) {
-        var comp = comparacoes.find(function(c) { 
-            return c.fonte && art.fonte && c.fonte.toLowerCase().includes(art.fonte.toLowerCase()); 
+        var comp = comparacoes.find(function(c) {
+            return c.fonte && art.fonte && c.fonte.toLowerCase().includes(art.fonte.toLowerCase());
         }) || {
             posicao: 'neutro',
             resumo_posicao: art.titulo || 'Matéria consultada pelas fontes.'
@@ -519,7 +499,7 @@ function abrirComparacao() {
 
         var col = document.createElement('div');
         col.className = 'comparacao-coluna';
-        col.innerHTML = 
+        col.innerHTML =
             '<div class="comparacao-fonte-nome">' + escaparHTML(art.fonte || 'Fonte') + '</div>' +
             '<div><span class="comparacao-posicao ' + posClass + '">' + posLabel + '</span></div>' +
             '<div class="comparacao-resumo">"' + escaparHTML(comp.resumo_posicao || art.titulo) + '"</div>' +
@@ -545,8 +525,6 @@ function escaparHTML(str) {
               .replace(/'/g, '&#039;');
 }
 
-// ── Histórico local (LocalStorage) ───────────────────────────
-// Cada navegador mantém o seu próprio histórico: nada é enviado ao servidor.
 var HISTORICO_STORAGE_KEY = 'verificai_historico';
 var HISTORICO_MAX_ITENS = 50;
 
@@ -571,7 +549,6 @@ function salvarHistoricoLocal(lista) {
         localStorage.setItem(HISTORICO_STORAGE_KEY, JSON.stringify(lista));
         return true;
     } catch (e) {
-        // Cota do localStorage excedida ou modo privado restrito
         return false;
     }
 }
@@ -587,7 +564,6 @@ function salvarItemNoHistoricoLocal(noticia, resultado) {
     return salvarHistoricoLocal(lista.slice(0, HISTORICO_MAX_ITENS));
 }
 
-// Aceita apenas URLs http/https (evita javascript:, data: etc.)
 function urlSegura(valor) {
     try {
         var u = new URL(String(valor), window.location.origin);

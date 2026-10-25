@@ -1,12 +1,3 @@
-/**
- * ─────────────────────────────────────────────────────────────
- *   historico.js — Gestão da Página de Histórico (100% local)
- * ─────────────────────────────────────────────────────────────
- * O histórico é armazenado exclusivamente no localStorage do
- * navegador do usuário (ver script.js). Nenhum dado é enviado
- * ou compartilhado com o servidor.
- */
-
 var historicoGlobal = [];
 var historicoDataMap = {};
 
@@ -68,7 +59,7 @@ function criarCardHistorico(item) {
         dataFormatada = d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     } catch (e) {}
 
-    card.innerHTML = 
+    card.innerHTML =
         '<div class="card-top">' +
             '<span class="verdict-badge ' + cssClass + '">' + labelTexto + '</span>' +
             '<span class="card-date">' + dataFormatada + '</span>' +
@@ -94,7 +85,6 @@ function escaparHtmlLocal(str) {
         .replace(/'/g, '&#039;');
 }
 
-// Escapa valores usados dentro de atributos inline (onclick="...").
 function escaparAtributo(str) {
     return String(str == null ? '' : str)
         .replace(/\\/g, '\\\\')
@@ -119,7 +109,7 @@ function verDetalhes(id) {
     var grau = res.grau_veracidade != null ? res.grau_veracidade : (res.pontuacao_confianca != null ? res.pontuacao_confianca : 'N/A');
     var grauStr = grau !== 'N/A' ? grau + '%' : 'N/A';
 
-    var html = 
+    var html =
         '<div class="detalhe-bloco"><h4>Notícia Verificada</h4><p><em>"' + escaparHtmlLocal(item.noticia || '') + '"</em></p></div>' +
         '<div class="detalhe-bloco"><h4>Veredicto</h4><p><strong>' + escaparHtmlLocal(res.veredicto || 'N/A') + '</strong> (Grau de Veracidade: ' + escaparHtmlLocal(grauStr) + ')</p></div>';
 

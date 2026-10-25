@@ -6,7 +6,6 @@
   </picture>
 </p>
 
-<h1 align="center">VerificaAI</h1>
 
 <p align="center">
   <strong>Checagem factual automatizada, rastreável e em tempo real.</strong><br>
@@ -316,16 +315,12 @@ O projeto foi endurecido para hospedagem pública. As decisões abaixo estão im
 ### Passo a passo
 
 ```bash
-# 1. Clone o repositório
 git clone https://github.com/ExtremeCodeX/VerificaAI.git
 
-# 2. Entre no diretório
 cd VerificaAI
 
-# 3. Instale as dependências
 npm install
 
-# 4. Inicie o servidor
 npm start
 ```
 

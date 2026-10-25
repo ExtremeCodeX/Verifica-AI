@@ -1,11 +1,3 @@
-/**
- * VerificaAI — Proteção contra SSRF (Server-Side Request Forgery)
- * ---------------------------------------------------------------
- * Valida URLs fornecidas por usuários antes de qualquer requisição
- * feita pelo servidor, bloqueando IPs privados, loopback, link-local
- * (metadados de nuvem) e faixas reservadas.
- */
-
 import dns from 'node:dns';
 import dnsPromises from 'node:dns/promises';
 import net from 'node:net';
@@ -13,14 +5,13 @@ import http from 'node:http';
 import https from 'node:https';
 import axios from 'axios';
 
-const MAX_BYTES_PADRAO = 2 * 1024 * 1024; // 2 MB
+const MAX_BYTES_PADRAO = 2 * 1024 * 1024;
 const TIMEOUT_PADRAO_MS = 8000;
 
 const blockList = new net.BlockList();
 
-// Faixas IPv4 bloqueadas
 [
-    ['0.0.0.0', 8],        // "this network"
+    ['0.0.0.0', 8],        // this network
     ['10.0.0.0', 8],       // privada
     ['100.64.0.0', 10],    // CGNAT
     ['127.0.0.0', 8],      // loopback
@@ -38,7 +29,6 @@ const blockList = new net.BlockList();
     blockList.addSubnet(endereco, prefixo, 'ipv4');
 });
 
-// Faixas IPv6 bloqueadas
 [
     ['::', 128],           // não especificado
     ['::1', 128],          // loopback
@@ -68,13 +58,9 @@ function ipProibido(endereco) {
         return blockList.check(endereco, 'ipv6');
     }
 
-    return true; // valor que não é IP é tratado como bloqueado
+    return true;
 }
 
-/**
- * Valida uma URL e garante que ela aponta para um destino público.
- * Lança erro quando a URL é inválida ou o destino é proibido.
- */
 export async function validarUrlPublica(valor) {
     let url;
 
@@ -105,7 +91,6 @@ export async function validarUrlPublica(valor) {
         throw new Error('URL sem host válido.');
     }
 
-    // Host é um IP literal: valida diretamente.
     if (net.isIP(host)) {
         if (ipProibido(host)) {
             throw new Error('Destino bloqueado pela política de segurança.');
@@ -113,7 +98,6 @@ export async function validarUrlPublica(valor) {
         return url;
     }
 
-    // Resolve o DNS e valida todos os endereços retornados.
     let registros;
     try {
         registros = await dnsPromises.lookup(host, { all: true, verbatim: true });
@@ -134,10 +118,7 @@ export async function validarUrlPublica(valor) {
     return url;
 }
 
-/**
- * `lookup` customizado usado pelos agents HTTP/HTTPS. Valida o IP no
- * momento da conexão, mitigando DNS rebinding (TOCTOU).
- */
+// Valida o IP no momento da conexão para mitigar DNS rebinding (TOCTOU).
 function lookupSeguro(hostname, options, callback) {
     dns.lookup(hostname, { ...options, all: true }, (err, enderecos) => {
         if (err) return callback(err);
@@ -160,10 +141,6 @@ function lookupSeguro(hostname, options, callback) {
 const httpAgent = new http.Agent({ lookup: lookupSeguro, keepAlive: false });
 const httpsAgent = new https.Agent({ lookup: lookupSeguro, keepAlive: false });
 
-/**
- * GET seguro, com validação de destino, limite de tamanho e timeout.
- * Lança erro em caso de URL/destino bloqueado ou falha de rede.
- */
 export async function getUrlSeguro(valor, {
     headers = {},
     timeout = TIMEOUT_PADRAO_MS,
