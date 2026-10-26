@@ -50,6 +50,7 @@ O projeto foi concebido como **Trabalho de Conclusão de Curso (TCC)** e combina
 - [Roadmap](#roadmap)
 - [Limitações e uso responsável](#limitações-e-uso-responsável)
 - [Contribuindo](#contribuindo)
+- [Criadores](#criadores)
 - [Licença](#licença)
 - [Documentação e referências](#documentação-e-referências)
 
@@ -576,6 +577,12 @@ Ao abrir um Pull Request, descreva o problema, a solução, os testes manuais re
 
 **Padrões do projeto:** ESM nativo, sem etapa de build no frontend, CSS baseado em variáveis e nomes de commits no formato Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`).
 
+## Criadores
+
+1. [ExtremeCodeX](https://github.com/ExtremeCodeX)
+2. [brossi73](https://github.com/brossi73)
+3. [caiobondarchuk](https://github.com/caiobondarchuk)
+
 ## Licença
 
 Distribuído sob a **Licença MIT**. Consulte [`LICENSE`](LICENSE) para o texto completo.
@@ -602,5 +609,5 @@ Distribuído sob a **Licença MIT**. Consulte [`LICENSE`](LICENSE) para o texto 
 
 <p align="center">
   <sub><strong>VerificaAI</strong> — rigor documental, transparência metodológica e tecnologia a serviço da informação.</sub><br>
-  <sub>Desenvolvido por <a href="https://github.com/ExtremeCodeX">ExtremeCodeX</a> como Trabalho de Conclusão de Curso.</sub>
+  <sub>Desenvolvido por <a href="https://github.com/ExtremeCodeX">ExtremeCodeX</a>, <a href="https://github.com/brossi73">brossi73</a> e <a href="https://github.com/caiobondarchuk">caiobondarchuk</a> como Trabalho de Conclusão de Curso.</sub>
 </p>
