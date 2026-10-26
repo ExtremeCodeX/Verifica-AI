@@ -579,9 +579,28 @@ Ao abrir um Pull Request, descreva o problema, a solução, os testes manuais re
 
 ## Criadores
 
-1. [ExtremeCodeX](https://github.com/ExtremeCodeX)
-2. [brossi73](https://github.com/brossi73)
-3. [caiobondarchuk](https://github.com/caiobondarchuk)
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/ExtremeCodeX">
+        <img src="https://github.com/ExtremeCodeX.png?size=100" width="100px;" alt="ExtremeCodeX"/><br>
+        <sub><b>ExtremeCodeX</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/brossi73">
+        <img src="https://github.com/brossi73.png?size=100" width="100px;" alt="brossi73"/><br>
+        <sub><b>brossi73</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/caiobondarchuk">
+        <img src="https://github.com/caiobondarchuk.png?size=100" width="100px;" alt="caiobondarchuk"/><br>
+        <sub><b>caiobondarchuk</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
 
 ## Licença
 
