@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#29316B">
+    <meta name="description" content="Conheça o VerificaAI: projeto de código aberto de verificação de notícias com IA, desenvolvido como TCC na Etec Prof. Dr. José Dagnoni em 2026.">
     <title>VerificaAI — Sobre Nós</title>
     <script>
         try {
@@ -13,6 +14,7 @@
         } catch (e) {}
     </script>
     <link rel="stylesheet" href="/static/style/styleglobal.css">
+    <link rel="stylesheet" href="/static/style/style-sobre.css">
     <link rel="icon" type="image/png" href="/static/img/favicon.png">
 </head>
 <body>
@@ -25,7 +27,7 @@
                 <ul>
                     <li><a href="/">Pesquisa</a></li>
                     <li><a href="/historico">Histórico</a></li>
-                    <li><a href="/sobre" class="active">Sobre Nós</a></li>
+                    <li><a href="/sobre" class="active" aria-current="page">Sobre Nós</a></li>
                 </ul>
             </nav>
             <button class="btn-menu-hamburger" type="button" onclick="toggleDrawer()"
@@ -53,7 +55,7 @@
                     <span>Histórico</span>
                     <span>→</span>
                 </a>
-                <a href="/sobre" class="drawer-link">
+                <a href="/sobre" class="drawer-link" aria-current="page">
                     <span>Sobre Nós</span>
                     <span>→</span>
                 </a>
@@ -65,9 +67,322 @@
         </div>
     </div>
 
-    <main style="padding: 60px 40px; max-width: 800px; margin: 0 auto;">
-        <h1>Sobre Nós</h1>
-        <p>Página em construção para apresentação do projeto VerificaAI.</p>
+    <main class="sobre-main">
+
+        <!-- ── Capa editorial ── -->
+        <section class="sobre-hero" aria-labelledby="sobre-titulo">
+            <div class="sobre-hero-inner">
+                <img src="/static/img/Logo_header.png" alt="VerificaAI" class="sobre-logo" width="646" height="187">
+                <h1 id="sobre-titulo">Sobre o VerificaAI</h1>
+                <p class="sobre-lead">
+                    Um projeto de código aberto dedicado à verificação de informações,
+                    à análise cruzada de fontes jornalísticas e à acessibilidade.
+                </p>
+                <div class="sobre-hero-actions">
+                    <a class="sobre-btn sobre-btn-primary"
+                       href="https://github.com/ExtremeCodeX/Verifica-AI"
+                       target="_blank" rel="noopener noreferrer"
+                       aria-label="Ver o repositório do VerificaAI no GitHub (abre em nova aba)">
+                        Ver no GitHub <span aria-hidden="true">↗</span>
+                    </a>
+                    <a class="sobre-btn sobre-btn-ghost" href="#metodologia">
+                        Como funciona <span aria-hidden="true">↓</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Ficha institucional ── -->
+        <aside class="sobre-dateline" aria-label="Informações institucionais do projeto">
+            <dl class="sobre-dateline-inner">
+                <div class="sobre-dateline-item">
+                    <dt>Instituição</dt>
+                    <dd>Etec Prof. Dr. José Dagnoni</dd>
+                </div>
+                <div class="sobre-dateline-item">
+                    <dt>Curso</dt>
+                    <dd>Desenvolvimento de Sistemas</dd>
+                </div>
+                <div class="sobre-dateline-item">
+                    <dt>Ano</dt>
+                    <dd>2026</dd>
+                </div>
+                <div class="sobre-dateline-item">
+                    <dt>Licença</dt>
+                    <dd>MIT</dd>
+                </div>
+            </dl>
+        </aside>
+
+        <div class="sobre-container">
+
+            <!-- ── I. O projeto ── -->
+            <section class="sobre-section" id="projeto" aria-labelledby="projeto-titulo">
+                <h2 id="projeto-titulo">Verificação com transparência</h2>
+                <div class="sobre-prose">
+                    <p>
+                        O VerificaAI é um projeto de código aberto desenvolvido com foco na
+                        verificação de informações e na acessibilidade. A plataforma foi criada
+                        para auxiliar os usuários na identificação de possíveis notícias falsas
+                        por meio da análise de diferentes fontes jornalísticas.
+                    </p>
+                    <p>
+                        Para realizar a verificação, o usuário insere uma notícia ou informação
+                        no sistema. A partir das principais palavras-chave identificadas, a
+                        aplicação realiza uma busca no Google News e reúne diversas notícias
+                        relacionadas ao assunto. Em seguida, essas informações são comparadas
+                        por modelos de inteligência artificial, que analisam a compatibilidade
+                        entre os conteúdos encontrados e atribuem um veredito à notícia informada.
+                    </p>
+                    <blockquote class="sobre-quote">
+                        <p>
+                            “O sistema não depende exclusivamente de um único meio de comunicação,
+                            que pode apresentar determinada perspectiva ou eventual tendência na
+                            abordagem de um assunto.”
+                        </p>
+                    </blockquote>
+                    <p>
+                        Ao considerar diferentes fontes, o VerificaAI busca oferecer uma análise
+                        mais ampla e fundamentada. Quando determinadas informações não são
+                        confirmadas pelas demais fontes consultadas, elas podem receber menor
+                        relevância durante o processo de análise.
+                    </p>
+                </div>
+            </section>
+
+            <!-- ── II. Metodologia ── -->
+            <section class="sobre-section" id="metodologia" aria-labelledby="metodologia-titulo">
+                <h2 id="metodologia-titulo">Como a verificação funciona</h2>
+                <p class="sobre-section-intro">
+                    Quatro etapas conectam a alegação enviada pelo usuário às fontes
+                    jornalísticas consultadas.
+                </p>
+                <ol class="sobre-steps">
+                    <li class="sobre-step">
+                        <span class="sobre-step-number" aria-hidden="true">01</span>
+                        <h3 class="sobre-step-title">Entrada</h3>
+                        <p class="sobre-step-text">
+                            O usuário insere uma notícia, um texto ou uma informação para ser
+                            verificada.
+                        </p>
+                    </li>
+                    <li class="sobre-step">
+                        <span class="sobre-step-number" aria-hidden="true">02</span>
+                        <h3 class="sobre-step-title">Palavras-chave</h3>
+                        <p class="sobre-step-text">
+                            A aplicação identifica as principais palavras-chave do conteúdo
+                            informado.
+                        </p>
+                    </li>
+                    <li class="sobre-step">
+                        <span class="sobre-step-number" aria-hidden="true">03</span>
+                        <h3 class="sobre-step-title">Fontes</h3>
+                        <p class="sobre-step-text">
+                            Com os termos identificados, o sistema realiza uma busca no Google
+                            News e reúne notícias relacionadas ao assunto.
+                        </p>
+                    </li>
+                    <li class="sobre-step">
+                        <span class="sobre-step-number" aria-hidden="true">04</span>
+                        <h3 class="sobre-step-title">Veredito</h3>
+                        <p class="sobre-step-text">
+                            Modelos de inteligência artificial comparam os conteúdos encontrados
+                            e atribuem um veredito à notícia informada.
+                        </p>
+                    </li>
+                </ol>
+            </section>
+
+            <!-- ── III. Personalização ── -->
+            <section class="sobre-section" id="personalizacao" aria-labelledby="personalizacao-titulo">
+                <h2 id="personalizacao-titulo">Ajustável ao rigor da apuração</h2>
+                <p class="sobre-section-intro">
+                    A plataforma permite configurar a análise de acordo com o contexto e o
+                    nível de rigor desejado.
+                </p>
+                <div class="sobre-config-grid">
+                    <article class="sobre-config-card">
+                        <p class="sobre-config-label">Modelo</p>
+                        <h3 class="sobre-config-title">Modelo de inteligência artificial</h3>
+                        <p class="sobre-config-text">
+                            Escolha do modelo utilizado na análise, entre as opções
+                            disponíveis na plataforma, como GPT-OSS 120B e 20B.
+                        </p>
+                    </article>
+                    <article class="sobre-config-card">
+                        <p class="sobre-config-label">Volume</p>
+                        <h3 class="sobre-config-title">Quantidade de notícias</h3>
+                        <p class="sobre-config-text">
+                            Definição do volume de artigos analisados, entre 5 e 20 fontes por
+                            verificação.
+                        </p>
+                    </article>
+                    <article class="sobre-config-card">
+                        <p class="sobre-config-label">Rigor</p>
+                        <h3 class="sobre-config-title">Nível de verificação</h3>
+                        <p class="sobre-config-text">
+                            Modo rigoroso que exige ao menos três fontes independentes para
+                            classificar uma informação como verdadeira.
+                        </p>
+                    </article>
+                    <article class="sobre-config-card">
+                        <p class="sobre-config-label">Acesso</p>
+                        <h3 class="sobre-config-title">APIs gratuitas</h3>
+                        <p class="sobre-config-text">
+                            Uso de modelos disponibilizados gratuitamente por meio de APIs, sem
+                            a obrigatoriedade de contratar serviços pagos.
+                        </p>
+                    </article>
+                </div>
+                <aside class="sobre-note">
+                    <p class="sobre-note-label">Integração atual</p>
+                    <p>
+                        A plataforma utiliza a API da Groq, com modelos GPT-OSS disponíveis em
+                        sua modalidade gratuita. Essa possibilidade contribui para tornar a
+                        ferramenta mais acessível e permite que o sistema seja utilizado sem a
+                        obrigatoriedade de contratar serviços pagos.
+                    </p>
+                </aside>
+            </section>
+
+            <!-- ── IV. Transparência ── -->
+            <section class="sobre-section" id="limites" aria-labelledby="limites-titulo">
+                <h2 id="limites-titulo">Limites e uso responsável</h2>
+                <div class="sobre-limits">
+                    <div class="sobre-limits-item">
+                        <p>
+                            <strong>A IA é probabilística.</strong> O VerificaAI organiza
+                            evidências e aplica critérios, mas não substitui a revisão humana
+                            nem o trabalho de uma agência de checagem profissional.
+                        </p>
+                    </div>
+                    <div class="sobre-limits-item">
+                        <p>
+                            <strong>Ausência de evidência não é prova de falsidade.</strong>
+                            O veredito “não encontrada nos sites” indica que a alegação não foi
+                            localizada na imprensa indexada, não que ela seja necessariamente
+                            falsa.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── V. Equipe ── -->
+            <section class="sobre-section" id="equipe" aria-labelledby="equipe-titulo">
+                <h2 id="equipe-titulo">Quem fez o VerificaAI</h2>
+                <p class="sobre-section-intro">
+                    Contribuições dos integrantes na construção da plataforma e da documentação
+                    do Trabalho de Conclusão de Curso.
+                </p>
+                <div class="sobre-team-grid">
+                    <article class="sobre-team-card" aria-labelledby="membro-breno">
+                        <span class="sobre-team-index" aria-hidden="true">01</span>
+                        <div class="sobre-team-avatar">
+                            <img src="/static/img/team/breno-rossi.png"
+                                 alt="Avatar de Breno Rossi Alves no GitHub"
+                                 width="88" height="88" loading="lazy" decoding="async">
+                        </div>
+                        <div class="sobre-team-body">
+                            <h3 class="sobre-team-name" id="membro-breno">Breno Rossi Alves</h3>
+                            <p class="sobre-team-role">Documentação</p>
+                            <p class="sobre-team-bio">
+                                Foi responsável pela documentação do projeto, incluindo a
+                                elaboração e a organização das atas, dos registros e dos demais
+                                documentos relacionados ao desenvolvimento do sistema.
+                            </p>
+                            <a class="sobre-team-link"
+                               href="https://github.com/brossi73"
+                               target="_blank" rel="noopener noreferrer"
+                               aria-label="Perfil de Breno Rossi Alves no GitHub (abre em nova aba)">
+                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <path d="M12 .5C5.73.5.9 5.33.9 11.6c0 4.9 3.17 9.05 7.57 10.52.55.1.75-.24.75-.53 0-.26-.01-1.13-.02-2.05-3.08.67-3.73-1.3-3.73-1.3-.5-1.28-1.23-1.62-1.23-1.62-1-.68.08-.67.08-.67 1.1.08 1.68 1.13 1.68 1.13.99 1.7 2.6 1.21 3.23.93.1-.72.39-1.21.7-1.49-2.46-.28-5.05-1.23-5.05-5.48 0-1.21.43-2.2 1.13-2.98-.11-.28-.49-1.41.11-2.94 0 0 .93-.3 3.05 1.14a10.6 10.6 0 0 1 2.78-.37c.94 0 1.89.13 2.78.37 2.12-1.44 3.05-1.14 3.05-1.14.6 1.53.22 2.66.11 2.94.7.78 1.13 1.77 1.13 2.98 0 4.26-2.6 5.2-5.07 5.47.4.34.75 1.01.75 2.04 0 1.47-.01 2.66-.01 3.02 0 .29.2.64.76.53a11.1 11.1 0 0 0 7.56-10.52C23.1 5.33 18.27.5 12 .5Z"/>
+                                </svg>
+                                <span>GitHub</span>
+                                <span aria-hidden="true">↗</span>
+                            </a>
+                        </div>
+                    </article>
+
+                    <article class="sobre-team-card" aria-labelledby="membro-caio">
+                        <span class="sobre-team-index" aria-hidden="true">02</span>
+                        <div class="sobre-team-avatar">
+                            <img src="/static/img/team/caio-bondarchuk.png"
+                                 alt="Avatar de Caio Bondarchuk no GitHub"
+                                 width="88" height="88" loading="lazy" decoding="async">
+                        </div>
+                        <div class="sobre-team-body">
+                            <h3 class="sobre-team-name" id="membro-caio">Caio Bondarchuk</h3>
+                            <p class="sobre-team-role">Interface e front-end</p>
+                            <p class="sobre-team-bio">
+                                Atuou no desenvolvimento da interface visual da plataforma,
+                                sendo responsável pela estrutura e pela implementação do
+                                front-end, além da organização da experiência visual do usuário.
+                            </p>
+                            <a class="sobre-team-link"
+                               href="https://github.com/caiobondarchuk"
+                               target="_blank" rel="noopener noreferrer"
+                               aria-label="Perfil de Caio Bondarchuk no GitHub (abre em nova aba)">
+                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <path d="M12 .5C5.73.5.9 5.33.9 11.6c0 4.9 3.17 9.05 7.57 10.52.55.1.75-.24.75-.53 0-.26-.01-1.13-.02-2.05-3.08.67-3.73-1.3-3.73-1.3-.5-1.28-1.23-1.62-1.23-1.62-1-.68.08-.67.08-.67 1.1.08 1.68 1.13 1.68 1.13.99 1.7 2.6 1.21 3.23.93.1-.72.39-1.21.7-1.49-2.46-.28-5.05-1.23-5.05-5.48 0-1.21.43-2.2 1.13-2.98-.11-.28-.49-1.41.11-2.94 0 0 .93-.3 3.05 1.14a10.6 10.6 0 0 1 2.78-.37c.94 0 1.89.13 2.78.37 2.12-1.44 3.05-1.14 3.05-1.14.6 1.53.22 2.66.11 2.94.7.78 1.13 1.77 1.13 2.98 0 4.26-2.6 5.2-5.07 5.47.4.34.75 1.01.75 2.04 0 1.47-.01 2.66-.01 3.02 0 .29.2.64.76.53a11.1 11.1 0 0 0 7.56-10.52C23.1 5.33 18.27.5 12 .5Z"/>
+                                </svg>
+                                <span>GitHub</span>
+                                <span aria-hidden="true">↗</span>
+                            </a>
+                        </div>
+                    </article>
+
+                    <article class="sobre-team-card" aria-labelledby="membro-eduardo">
+                        <span class="sobre-team-index" aria-hidden="true">03</span>
+                        <div class="sobre-team-avatar">
+                            <img src="/static/img/team/eduardo-caris.jpg"
+                                 alt="Avatar de Eduardo Caris Rezende no GitHub"
+                                 width="88" height="88" loading="lazy" decoding="async">
+                        </div>
+                        <div class="sobre-team-body">
+                            <h3 class="sobre-team-name" id="membro-eduardo">Eduardo Caris Rezende</h3>
+                            <p class="sobre-team-role">Verificação e IA</p>
+                            <p class="sobre-team-bio">
+                                Contribuiu para o desenvolvimento do sistema de verificação,
+                                especialmente na implementação da lógica de análise e na
+                                elaboração dos prompts utilizados pelos modelos de inteligência
+                                artificial durante o processo de verificação das notícias.
+                            </p>
+                            <a class="sobre-team-link"
+                               href="https://github.com/ExtremeCodeX"
+                               target="_blank" rel="noopener noreferrer"
+                               aria-label="Perfil de Eduardo Caris Rezende no GitHub (abre em nova aba)">
+                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <path d="M12 .5C5.73.5.9 5.33.9 11.6c0 4.9 3.17 9.05 7.57 10.52.55.1.75-.24.75-.53 0-.26-.01-1.13-.02-2.05-3.08.67-3.73-1.3-3.73-1.3-.5-1.28-1.23-1.62-1.23-1.62-1-.68.08-.67.08-.67 1.1.08 1.68 1.13 1.68 1.13.99 1.7 2.6 1.21 3.23.93.1-.72.39-1.21.7-1.49-2.46-.28-5.05-1.23-5.05-5.48 0-1.21.43-2.2 1.13-2.98-.11-.28-.49-1.41.11-2.94 0 0 .93-.3 3.05 1.14a10.6 10.6 0 0 1 2.78-.37c.94 0 1.89.13 2.78.37 2.12-1.44 3.05-1.14 3.05-1.14.6 1.53.22 2.66.11 2.94.7.78 1.13 1.77 1.13 2.98 0 4.26-2.6 5.2-5.07 5.47.4.34.75 1.01.75 2.04 0 1.47-.01 2.66-.01 3.02 0 .29.2.64.76.53a11.1 11.1 0 0 0 7.56-10.52C23.1 5.33 18.27.5 12 .5Z"/>
+                                </svg>
+                                <span>GitHub</span>
+                                <span aria-hidden="true">↗</span>
+                            </a>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- ── Ficha final ── -->
+            <section class="sobre-colophon" aria-labelledby="colophon-titulo">
+                <div class="sobre-colophon-inner">
+                    <div class="sobre-colophon-copy">
+                        <h2 id="colophon-titulo">Código aberto, método transparente.</h2>
+                        <p>
+                            O VerificaAI é distribuído sob a Licença MIT e foi desenvolvido como
+                            Trabalho de Conclusão de Curso na Etec Prof. Dr. José Dagnoni, no
+                            curso de Desenvolvimento de Sistemas, em 2026.
+                        </p>
+                        <ul class="sobre-stack" aria-label="Tecnologias utilizadas no projeto">
+                            <li>Node.js</li>
+                            <li>Express</li>
+                            <li>Groq</li>
+                            <li>Google News RSS</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+        </div>
     </main>
 
     <footer>

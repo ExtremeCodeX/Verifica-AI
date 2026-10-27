@@ -17,7 +17,7 @@
   <a href="https://expressjs.com/"><img src="https://img.shields.io/badge/Express-4.x-000000?style=flat-square&logo=express&logoColor=white" alt="Express 4.x"></a>
   <a href="https://console.groq.com/"><img src="https://img.shields.io/badge/Groq_API-GPT--OSS-F55036?style=flat-square" alt="Groq API"></a>
   <a href="https://developer.mozilla.org/docs/Web/API/Server-sent_events"><img src="https://img.shields.io/badge/SSE-tempo_real-1D4ED8?style=flat-square" alt="Server-Sent Events"></a>
-  <a href="https://verifica-ai.netlify.app/"><img src="https://img.shields.io/badge/demo-online-046C4E?style=flat-square&logo=netlify&logoColor=white" alt="Demo online no Netlify"></a>
+  <a href="https://verifica-ai-five.vercel.app/"><img src="https://img.shields.io/badge/demo-online-046C4E?style=flat-square&logo=vercel&logoColor=white" alt="Demo online na Vercel"></a>
   <a href="#roadmap"><img src="https://img.shields.io/badge/status-funcional-046C4E?style=flat-square" alt="Status do projeto: funcional"></a>
   <a href="package.json"><img src="https://img.shields.io/badge/vers%C3%A3o-2.0.0-121212?style=flat-square" alt="Versão 2.0.0"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/licen%C3%A7a-MIT-990000?style=flat-square" alt="Licença MIT"></a>
@@ -31,7 +31,7 @@ Em um cenário em que uma alegação falsa circula mais rápido do que sua corre
 
 O projeto foi concebido como **Trabalho de Conclusão de Curso (TCC)** e combina rigor jornalístico, transparência metodológica e engenharia de software aplicada à integridade informacional.
 
-> **Experimente agora:** o VerificaAI está publicado em **[verifica-ai.netlify.app](https://verifica-ai.netlify.app/)**. Não é preciso instalar nada — basta abrir o site no navegador e informar sua chave gratuita do Groq para começar a verificar alegações.
+> **Experimente agora:** o VerificaAI está publicado em **[verifica-ai-five.vercel.app](https://verifica-ai-five.vercel.app/)**. Não é preciso instalar nada — basta abrir o site no navegador e informar sua chave gratuita do Groq para começar a verificar alegações.
 
 ## Sumário
 
@@ -58,7 +58,7 @@ O projeto foi concebido como **Trabalho de Conclusão de Curso (TCC)** e combina
 
 A forma mais rápida de usar o VerificaAI é pela versão hospedada:
 
-**[https://verifica-ai.netlify.app/](https://verifica-ai.netlify.app/)**
+**[https://verifica-ai-five.vercel.app/](https://verifica-ai-five.vercel.app/)**
 
 O site roda o mesmo pipeline de verificação descrito neste documento — extração de termos, varredura no Google News, leitura integral das matérias e julgamento factual — com progresso em tempo real via SSE. Nenhuma instalação é necessária.
 
@@ -225,7 +225,7 @@ O modelo responde em JSON validado, com os seguintes campos:
 │   ├── historico.html         # Histórico local de verificações
 │   └── sobre.html             # Apresentação institucional do projeto
 ├── static/
-│   ├── img/                   # Logos e favicon
+│   ├── img/                   # Logos, favicon e avatares da equipe
 │   ├── script/
 │   │   ├── script.js          # Pesquisa, SSE, veredito, comparador e histórico
 │   │   └── historico.js       # Carregamento, detalhes e exclusão de itens
@@ -233,6 +233,7 @@ O modelo responde em JSON validado, com os seguintes campos:
 │       ├── styleglobal.css    # Tokens, reset, layout base e temas
 │       ├── style-pesquisa.css # Hero e painel avançado
 │       ├── style-resultado.css# Veredito, apuração, artigos e modais
+│       ├── style-sobre.css    # Página institucional
 │       └── style-historico.css# Lista e detalhes do histórico
 ├── CONTEXT.md                 # Contexto técnico e decisões do projeto
 ├── PRODUCT.md                 # Posicionamento, público e princípios
@@ -288,7 +289,7 @@ A paleta é centralizada em `styleglobal.css` e trocada por tokens semânticos s
 
 **Tipografia:** Newsreader/Georgia para títulos, Source Serif Pro/Georgia para corpo e IBM Plex Mono para dados, rótulos e pontuações. O contraste é alto, os cantos são discretos (2–4 px) e a profundidade é comunicada por contraste tonal e réguas — não por sombras ou gradientes.
 
-**Acessibilidade:** hierarquia tipográfica clara, foco visível, textos alternativos nas imagens e animações restritas ao progresso da apuração. Uma auditoria WCAG 2.1 AA e a revisão de responsividade mobile estão no roadmap.
+**Acessibilidade:** hierarquia tipográfica clara, foco visível, textos alternativos nas imagens e animações discretas — restritas ao progresso da apuração e a microinterações de interface — com respeito a `prefers-reduced-motion`. Uma auditoria WCAG 2.1 AA e a revisão de responsividade mobile estão no roadmap.
 
 ## Segurança e privacidade
 
@@ -326,7 +327,7 @@ O projeto foi endurecido para hospedagem pública. As decisões abaixo estão im
 
 ## Instalação
 
-> **Só quer testar?** Use a [versão online](https://verifica-ai.netlify.app/) e pule esta seção. A instalação local é destinada a quem deseja rodar o projeto na própria máquina, contribuir com o código ou fazer deploy da sua própria instância.
+> **Só quer testar?** Use a [versão online](https://verifica-ai-five.vercel.app/) e pule esta seção. A instalação local é destinada a quem deseja rodar o projeto na própria máquina, contribuir com o código ou fazer deploy da sua própria instância.
 
 ### Pré-requisitos
 
@@ -370,7 +371,7 @@ curl -I http://localhost:3000
 
 ### Chave da API Groq (interface)
 
-1. Abra a [versão online](https://verifica-ai.netlify.app/) ou inicie o servidor local e acesse `http://localhost:3000`.
+1. Abra a [versão online](https://verifica-ai-five.vercel.app/) ou inicie o servidor local e acesse `http://localhost:3000`.
 2. Clique em **"Chave API"** no cabeçalho.
 3. Cole a chave no formato `gsk_...` e confirme em **"Salvar Chave"**.
 4. A chave é gravada em `localStorage` sob a chave `groq_api_key`.
@@ -394,7 +395,7 @@ PORT=8080 NODE_ENV=production TRUST_PROXY=1 npm start
 
 ## Como usar
 
-1. **Abra o VerificaAI.** Use a [versão online](https://verifica-ai.netlify.app/) ou acesse `http://localhost:3000` após a instalação local.
+1. **Abra o VerificaAI.** Use a [versão online](https://verifica-ai-five.vercel.app/) ou acesse `http://localhost:3000` após a instalação local.
 2. **Informe a alegação.** Cole o texto da notícia ou a URL de uma matéria pública.
 3. **Ajuste a apuração (opcional).** Abra "Pesquisa Avançada" e defina os parâmetros.
 4. **Acompanhe o pipeline.** A página de resultado exibe as quatro etapas, os termos extraídos, as queries e os veículos sendo lidos.
@@ -421,7 +422,7 @@ PORT=8080 NODE_ENV=production TRUST_PROXY=1 npm start
 
 ## API HTTP e SSE
 
-> Os exemplos desta seção usam a instância local (`http://localhost:3000`). Para consumir a instância pública, substitua a URL base por `https://verifica-ai.netlify.app`.
+> Os exemplos desta seção usam a instância local (`http://localhost:3000`). Para consumir a instância pública, substitua a URL base por `https://verifica-ai-five.vercel.app`.
 
 ### Rotas
 
@@ -522,7 +523,7 @@ O VerificaAI está **funcional em sua versão 2.0.0**. O roadmap abaixo prioriza
 | ✅ | Comparador de fontes | Modal lado a lado com postura de cada veículo. |
 | ✅ | Histórico local | Persistência no navegador, com detalhes, exclusão e limite de 50 itens. |
 | ✅ | Hardening de segurança | SSRF, prompt injection, rate limiting, Helmet, CSP e tokens de uso único. |
-| ✅ | Deploy público | Instância de demonstração publicada no Netlify: [verifica-ai.netlify.app](https://verifica-ai.netlify.app/). |
+| ✅ | Deploy público | Instância de demonstração publicada na Vercel: [verifica-ai-five.vercel.app](https://verifica-ai-five.vercel.app/). |
 | 🚧 | **Extensão Chrome/Firefox** | Checagem da aba ativa, menu de contexto e popup de veredito. |
 | 🚧 | **Filtros de fontes confiáveis** | Allowlist/denylist de veículos, peso por reputação, diversidade de domínios e priorização de agências de fact-checking. |
 | 🚧 | **Exportação de relatórios** | PDF com metodologia, fontes e timestamp; JSON para pesquisa; Markdown para publicação. |
