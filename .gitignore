@@ -5,11 +5,16 @@ package-lock.json.bak
 # Segredos e Credenciais
 apikey.txt
 .env
+.env.*
+!.env.example
 *.pem
 *.key
+*.p12
+*.pfx
 
-# Build estático (Netlify)
+# Artefatos de build
 dist/
+web-ext-artifacts/
 
 # Caches e Ambientes Legados
 __pycache__/
@@ -31,3 +36,24 @@ npm-debug.log*
 .ai-jail
 historico.json
 .opencode/
+
+# Local Netlify folder
+.netlify
+
+# Configuração local da Vercel
+.vercel/
+
+# Relatórios, traces e sessões de testes
+test-results/
+playwright-report/
+blob-report/
+coverage/
+playwright/.auth/
+storage-state*.json
+storageState*.json
+*.har
+
+# Artefatos locais de design
+.impeccable/review/
+.impeccable/mocks/
+.impeccable/config.local.json

@@ -51,7 +51,7 @@ app.use(cors(origensPermitidas.length > 0
 
 app.use(express.json({ limit: '1mb' }));
 
-// Assets padronizados em /static/* (mesmo caminho usado no build estático da Netlify).
+// Assets padronizados em /static/* (mesmo caminho usado no build estático).
 app.use('/static', express.static(path.join(__dirname, 'static')));
 
 // Compatibilidade com URLs antigas (/style/*, /img/*, /script/*) usadas em links
@@ -193,10 +193,15 @@ app.get('/api/check/stream/:token', (req, res) => {
                 emit({ type: 'error', msg: 'A verificação não retornou resultado.' });
             }
         } catch (exc) {
-            console.error('Erro na verificação:', exc);
-            let msg = exc.message || 'Erro desconhecido';
-            if (exc.status === 401 || msg.includes('401') || msg.includes('Authentication')) {
+            // Objetos de erro do SDK podem conter headers e credenciais da requisição.
+            console.error('Falha na verificação; detalhes omitidos para proteger credenciais.');
+            let msg = 'Não foi possível concluir a apuração. Confira a cota Groq e a disponibilidade das fontes.';
+            if (exc.status === 401) {
                 msg = 'Chave da API Groq inválida. Verifique sua chave.';
+            } else if (exc.status === 429) {
+                msg = 'Cota ou limite de requisições Groq atingido. Aguarde antes de tentar novamente.';
+            } else if (exc.message === 'Não foi possível extrair o conteúdo da URL informada. Verifique se o endereço é público, acessível e não está protegido por paywall.') {
+                msg = exc.message;
             }
             emit({ type: 'error', msg });
         } finally {
@@ -220,7 +225,7 @@ app.use((err, req, res, next) => {
         return res.status(413).json({ erro: 'Corpo da requisição muito grande.' });
     }
 
-    console.error('Erro não tratado:', err);
+    console.error('Erro interno; detalhes omitidos para proteger dados da requisição.');
 
     if (req.path.startsWith('/api/')) {
         return res.status(500).json({ erro: 'Erro interno do servidor.' });

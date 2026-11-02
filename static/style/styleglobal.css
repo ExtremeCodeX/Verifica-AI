@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Source+Serif+Pro:ital,wght@0,400;0,600;0,700;1,400&display=swap');
 
+.api-key-choice { display: flex; align-items: center; gap: 10px; margin-block: 16px; cursor: pointer; }
+.api-key-choice input { width: 18px; height: 18px; accent-color: var(--color-primary); }
+
 /* ── Variáveis Globais — Identidade Índigo Editorial ───────── */
 :root {
     color-scheme: light;

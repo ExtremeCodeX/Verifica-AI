@@ -190,17 +190,19 @@
             </div>
             <p class="modal-desc">
                 Para verificar notícias com Inteligência Artificial, insira sua chave da API Groq (fornecida gratuitamente pela Groq). 
-                A chave é armazenada com segurança exclusiva no armazenamento local do navegador (localStorage).
+                Você pode salvar a chave neste navegador ou usá-la sem salvar.
             </p>
             <div class="modal-input-group">
-                <input type="password" id="apiKeyInput" placeholder="gsk_..." autocomplete="current-password">
+                <input type="password" id="apiKeyInput" aria-label="Chave da API Groq" placeholder="gsk_..." autocomplete="off" spellcheck="false">
                 <button class="btn-toggle-pass" onclick="toggleApiKeyVisibility()" type="button">Exibir</button>
             </div>
+            <label class="api-key-choice"><input type="checkbox" id="apiKeyTemporary"> Não salvar nesse dispositivo</label>
+            <p class="modal-desc" id="apiKeyPrivacy" aria-live="polite"></p>
             <div class="modal-links">
                 <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Obter chave gratuita no console Groq ↗</a>
             </div>
             <div class="modal-actions">
-                <button class="btn-primary" onclick="saveApiKey()">Salvar Chave</button>
+                <button class="btn-primary" id="apiKeySave" onclick="saveApiKey()">Salvar chave</button>
             </div>
         </div>
     </div>

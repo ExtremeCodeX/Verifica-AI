@@ -19,8 +19,9 @@ Este documento resume o estado completo, decisões técnicas, arquitetura e inst
 * **Utilitários:** `cors`
 * **Frontend:** HTML5, CSS3 (Design moderno com Variáveis CSS, Flexbox/Grid, Temas escuros/claros), Vanilla JavaScript (ES6+), Server-Sent Events (SSE) para progresso em tempo real.
 * **Armazenamento:**
-  * Chave de API Groq: Armazenada localmente no navegador (`localStorage`).
-  * Histórico de Verificações: Persistido localmente em arquivo JSON (`historico.json` na raiz).
+  * Chave de API Groq: opcionalmente no `localStorage`; “Não salvar nesse dispositivo” mantém a chave apenas em memória na página de resultado.
+  * Histórico de verificações: `localStorage` (`verificai_historico`), limitado a 50 itens, sem persistência no servidor.
+  * Extensão: armazenamento separado em `storage.local`; chave temporária somente em memória nos contextos internos do popup/executor. Toda a interface fica no popup; fechar/reabrir não interrompe checagens iniciadas.
 
 ---
 
@@ -29,9 +30,10 @@ Este documento resume o estado completo, decisões técnicas, arquitetura e inst
 /
 ├── server.js            # Servidor Express, rotas da API, endpoints SSE e gerenciamento de sessões
 ├── checker.js           # Motor de verificação (extração de keywords, busca Google News, scraping Cheerio, Groq AI)
-├── history.js           # Gerenciador do histórico local (leitura, escrita e exclusão em historico.json)
 ├── package.json         # Dependências e scripts do projeto (npm start)
-├── historico.json       # Armazenamento local das verificações realizadas
+├── extension/           # Extensão Chrome/Edge e Firefox; ver extension/README.md
+├── scripts/             # Build e empacotamento da extensão
+├── tests/               # Testes unitários e fluxos Chromium com API simulada
 ├── static/
 │   ├── script/
 │   │   ├── script.js    # Lógica do front-end (pesquisa, SSE, modal de API Key, renderização de resultados, comparador)
@@ -60,7 +62,7 @@ A pontuação de veracidade avalia a proporção de fatos verdadeiros vs. falsos
 
 ### B. Segurança & Privacidade de Chave API
 * Os usuários configuram sua própria chave da API Groq gratuita através de um modal acessível pelo cabeçalho (`⚙ Chave API`).
-* A chave é salva estritamente no `localStorage` do navegador do usuário, nunca sendo exposta ou armazenada no servidor backend.
+* A chave pode ser salva no `localStorage` ou usada somente em memória. Ela é enviada à API e à Groq para a checagem, sem persistência no servidor. O modo temporário remove uma chave previamente salva após confirmação. Não há cofre criptografado ou proteção garantida contra malware.
 
 ### C. Comparador de Múltiplas Fontes (Visão Lado a Lado)
 * A IA analisa e categoriza a posição de cada fonte consultada (`confirma`, `contradiz` ou `neutro`).
@@ -78,12 +80,12 @@ A pontuação de veracidade avalia a proporção de fatos verdadeiros vs. falsos
    - Scraping e leitura de conteúdo textual via `cheerio` e `axios`.
    - Diagnóstico estruturado em JSON pela IA.
 3. **Interface Gráfica Moderna:** Páginas de Pesquisa, Resultado e Histórico estilizadas.
-4. **Sistema de Histórico Local (`historico.json`):** Salva, lista, exibe detalhes e permite apagar verificações.
+4. **Histórico local no navegador:** Salva, lista, exibe detalhes e permite apagar verificações, sem banco ou arquivo de histórico no servidor.
 5. **Grau de Veracidade:** Substituiu o conceito vago de confiança por limiares objetivos (0-29%, 30-69%, 70-100% e `?`).
 6. **Comparador Lado a Lado de Fontes:** Modal interativo comparando a postura das fontes jornalísticas.
 
 ### 🚧 Próximos Passos Sugeridos (Futuras Implementações):
-* Extensão de navegador (Chrome/Firefox) para checagem rápida em qualquer site.
+* Extensão de navegador: build local para Chrome/Edge 127+ (MV3/offscreen com worker) e Firefox 140+ (MV2/background persistente com worker). Captura explícita, revisão, progresso, dossiê, configuração e histórico inteiramente no popup, usando CSS e logo reais do site. Fechar o popup não interrompe a análise; resultados ficam locais. Publicação e validação manual completa dos navegadores pendentes; instruções em `extension/README.md`.
 * Painel de estatísticas e tendências de desinformação (`/dashboard`).
 * Exportação de relatório em PDF para fins acadêmicos/jornalísticos.
 * Sistema opcional de feedback do usuário ("A IA errou?").

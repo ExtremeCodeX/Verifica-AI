@@ -47,6 +47,8 @@ O projeto foi concebido como **Trabalho de Conclusão de Curso (TCC)** e combina
 - [Configuração](#configuração)
 - [Como usar](#como-usar)
 - [API HTTP e SSE](#api-http-e-sse)
+- [Extensão para navegador](#extensão-para-navegador)
+- [Testes e validação](#testes-e-validação)
 - [Roadmap](#roadmap)
 - [Limitações e uso responsável](#limitações-e-uso-responsável)
 - [Contribuindo](#contribuindo)
@@ -65,7 +67,7 @@ O site roda o mesmo pipeline de verificação descrito neste documento — extra
 | Item | Detalhe |
 | :--- | :--- |
 | **Chave Groq** | Obrigatória e gratuita. Cadastre em [console.groq.com/keys](https://console.groq.com/keys) e cole no botão **"Chave API"** do site. |
-| **Onde a chave fica** | Apenas no `localStorage` do seu navegador; ela não é persistida no servidor. |
+| **Onde a chave fica** | No `localStorage`, se você optar por salvar. Com **“Não salvar nesse dispositivo”**, fica apenas na memória da página de resultado; ela não é persistida no servidor. |
 | **Histórico** | Também local, no seu navegador, limitado a 50 verificações. |
 | **Custo** | O uso do site é gratuito; o consumo é debitado da sua própria cota Groq. |
 | **Instalação local** | Opcional. Siga [Instalação](#instalação) caso queira executar o projeto na sua máquina ou contribuir com o código. |
@@ -114,6 +116,9 @@ O VerificaAI trata a verificação como um **procedimento documental**, não com
 | **Painel avançado** | Controla quantidade de artigos, idioma, tamanho do resumo, modelo e rigor. | Opções validadas e normalizadas no backend com allowlists. |
 | **Tema claro/escuro** | Alterna a paleta editorial e persiste a preferência. | `data-theme` + `localStorage` (`verificai_theme`). |
 | **Hardening para web** | Protege o servidor contra SSRF, abuso, prompt injection e vazamento de erros. | `helmet`, `express-rate-limit`, validação de DNS no momento da conexão e tokens de uso único. |
+| **Extensão Chrome/Edge e Firefox** | Verifica a página ativa ou seleção, com prévia, progresso e dossiê inteiramente no popup. | Readability local; worker independente da interface; fechar o popup não interrompe a análise. |
+| **Chave sem persistência** | Oferece “Não salvar nesse dispositivo” no site e na extensão. | Remove uma chave previamente salva após confirmação e usa o segredo somente em memória. |
+| **Popup compacto** | Organiza o dossiê em Resumo, Fontes, Comparar e Detalhes. | Resumo expandível, altura controlada e rolagem apenas na área central, sem abrir abas de análise. |
 
 ## Pipeline de verificação
 
@@ -206,8 +211,11 @@ O modelo responde em JSON validado, com os seguintes campos:
 | **Frontend** | HTML5, CSS3 e Vanilla JavaScript (ES6+) | Interface sem build step, com `fetch`, `EventSource` e manipulação direta do DOM. |
 | **Tempo real** | Server-Sent Events | Progresso do pipeline em quatro etapas. |
 | **Segurança** | `helmet`, `express-rate-limit`, `url-safety.js` | CSP, limitação de requisições, validação de URLs e defesa contra SSRF. |
-| **Persistência** | `localStorage` | Chave Groq, tema e histórico de verificações no navegador. |
+| **Persistência** | `localStorage` no site; `storage.local` na extensão | Tema, histórico e chave opcionalmente salva; chave temporária somente em memória. |
 | **Design** | CSS Custom Properties, Grid e Flexbox | Identidade Editorial Broadsheet, com temas claro e escuro. |
+| **Extensão** | WebExtensions, Readability e Web Workers | Chrome/Edge com Manifest V3 e documento offscreen; Firefox com Manifest V2 e background persistente. |
+| **Testes** | Node.js Test Runner + Playwright/Chromium | Validação de chave, opções, SSE, armazenamento e fluxos do popup com API simulada. |
+| **Fontes da extensão** | Fontsource | Newsreader, Source Serif Pro e IBM Plex Mono empacotadas localmente, com suas licenças. |
 
 > **Nota sobre a versão do Node.js:** o `package-lock.json` atual resolve `cheerio@1.2.x`, que declara suporte a Node.js `>= 20.18.1`. Por isso, a recomendação é **Node.js 20.18+ (22 ou 24 LTS)**. Em ambientes com Node 18, é necessário fixar uma versão anterior do Cheerio ou atualizar o runtime.
 
@@ -218,7 +226,22 @@ O modelo responde em JSON validado, com os seguintes campos:
 ├── server.js                  # Express, segurança, rotas de páginas, API e SSE
 ├── checker.js                 # Pipeline de verificação, prompts, RSS e scraping
 ├── url-safety.js              # Validação de URLs e proteção contra SSRF
-├── package.json               # Dependências e scripts (start / dev)
+├── package.json               # Execução, testes, build e pacotes da extensão
+├── extension/
+│   ├── manifests/             # Chrome/Edge e Firefox
+│   ├── background/            # Jobs, captura, menus e badge
+│   ├── content/               # Extração explícita do artigo/seleção
+│   ├── popup/                 # Pesquisa, prévia, progresso, dossiê e configuração
+│   ├── runner/                # Worker HTTP/SSE e host offscreen
+│   ├── shared/                # API, validação, armazenamento e renderização
+│   ├── assets/                # Ícone e identificação da origem do asset
+│   ├── PRIVACY.md             # Política de privacidade da extensão
+│   └── README.md              # Instalação e documentação técnica
+├── scripts/
+│   └── build-extension.mjs    # Gera os dois clientes e seus ZIPs
+├── tests/
+│   ├── unit/                 # Contratos, SSE, chave e executor
+│   └── browser/              # Fluxos Chromium e abertura do popup nativo
 ├── templates/
 │   ├── index.html             # Página inicial e painel de pesquisa avançada
 │   ├── resultado.html         # Progresso em tempo real, veredito e comparador
@@ -251,6 +274,10 @@ O modelo responde em JSON validado, com os seguintes campos:
 | `static/script/script.js` | Coleta opções, inicia a verificação, consome o SSE, renderiza o veredito, abre o comparador e grava o histórico local. |
 | `static/script/historico.js` | Lê, detalha, exclui e limpa o histórico exclusivamente via `localStorage`. |
 | `templates/` + `static/style/` | Camada de apresentação servida pelo Express, com HTML sem framework e CSS baseado em tokens. |
+| `extension/background/` | Captura conteúdo sob ação explícita, serializa as alterações dos jobs e atualiza menus, seleção de análise e badge. |
+| `extension/runner/` | Executa HTTP/SSE em um worker independente do popup; recebe a chave apenas em memória e comunica progresso/resultado ao background. |
+| `extension/popup/` | Concentra toda a interação da extensão, com o logo e os componentes visuais do site, sem depender da interface para manter a checagem ativa. |
+| `scripts/build-extension.mjs` | Gera pacotes separados, copia CSS/logo do site e empacota Readability e fontes locais com suas licenças. |
 
 > **Evolução da arquitetura:** a versão atual **não utiliza `history.js` nem `historico.json`**. A persistência no servidor foi descontinuada em favor do `localStorage`, garantindo isolamento entre visitantes e eliminando conflitos de concorrência na escrita de arquivos. O histórico é criado no navegador no momento em que o evento `result` é recebido.
 
@@ -303,7 +330,7 @@ O projeto foi endurecido para hospedagem pública. As decisões abaixo estão im
 | **Prompt injection** | Conteúdo do usuário e artigos externos são envolvidos em tags delimitadoras; tags internas são removidas do texto; o system prompt proíbe obedecer instruções contidas nos blocos. | `checker.js` |
 | **Abuso e força bruta** | 300 requisições/15 min por IP na API e 8 verificações/min na rota de início. | `server.js` |
 | **Clickjacking e MIME sniffing** | Helmet com CSP, `frameAncestors: 'none'`, `objectSrc: 'none'` e política de recursos same-origin. | `server.js` |
-| **Vazamento de chave** | A chave é armazenada apenas no `localStorage` (`groq_api_key`) e mantida em memória no servidor durante a requisição; não é gravada em disco nem incluída no histórico. | Frontend + `server.js` |
+| **Vazamento de chave** | Persistência opcional no `localStorage` (`groq_api_key`), ou somente memória da página com “Não salvar nesse dispositivo”. No servidor, apenas em memória durante o processamento; nunca no histórico ou nos logs de erro da aplicação. | Frontend + `server.js` |
 | **Exposição do histórico** | O histórico nunca é enviado ao servidor; fica no navegador, limitado a 50 itens. | `script.js` / `historico.js` |
 | **Entradas maliciosas** | Limite de 20.000 caracteres por notícia; allowlists de modelo, idioma, tamanho de resumo e faixa de artigos; 404 JSON para rotas de API inexistentes. | `server.js` |
 | **Esgotamento de memória** | `pendingJobs` com TTL de 2 minutos, token de uso único e teto de 150 jobs pendentes. | `server.js` |
@@ -313,9 +340,15 @@ O projeto foi endurecido para hospedagem pública. As decisões abaixo estão im
 ### Postura de privacidade
 
 - **Sem banco de dados e sem contas de usuário.** O único estado no servidor é o job temporário em memória, descartado em até 2 minutos ou após o consumo do token.
-- **Chave do usuário, sob controle do usuário.** O modelo de negócio é "traga sua própria chave" (*bring your own key*), com a chave gratuita do Groq Console.
+- **Chave do usuário, sob controle do usuário.** O modelo é "traga sua própria chave" (*bring your own key*). Você pode salvá-la localmente ou escolher **“Não salvar nesse dispositivo”**. Armazenamento local não é um cofre criptografado e não protege uma máquina infectada.
 - **Histórico local e descartável.** Limpar os dados do site remove o histórico e a chave.
 - **Coleta mínima.** O servidor acessa apenas as URLs necessárias à verificação e não mantém logs de conteúdo.
+
+### Dados locais e preparação para commits
+
+O `.gitignore` cobre `node_modules/`, `dist/`, arquivos `.env` e suas variações, configurações locais de deploy (`.vercel/` e `.netlify`), histórico legado, relatórios/traces de testes, estados de autenticação, arquivos HAR, certificados privados e artefatos locais de design. `.env.example` permanece permitido para exemplos sem credenciais. Código-fonte, testes, assets e `package-lock.json` continuam versionados.
+
+Os testes usam chaves fictícias, nunca credenciais reais. A varredura local por padrões incluiu arquivos, pacotes ZIP e objetos do histórico Git e não identificou credenciais reais; isso não substitui revisão antes de publicar nem secret scanning. O `.gitignore` não remove arquivos já commitados nem elimina segredos de commits anteriores. Se uma chave real for publicada, revogue-a e trate o histórico separadamente.
 
 > **Riscos residuais e recomendações de produção**
 >
@@ -374,7 +407,9 @@ curl -I http://localhost:3000
 1. Abra a [versão online](https://verifica-ai-five.vercel.app/) ou inicie o servidor local e acesse `http://localhost:3000`.
 2. Clique em **"Chave API"** no cabeçalho.
 3. Cole a chave no formato `gsk_...` e confirme em **"Salvar Chave"**.
-4. A chave é gravada em `localStorage` sob a chave `groq_api_key`.
+4. Por padrão, a chave é gravada em `localStorage` sob `groq_api_key`. Para não persistir a chave, marque **“Não salvar nesse dispositivo”** e confirme em **“Usar sem salvar”**. Uma chave salva anteriormente será removida.
+
+No modo temporário, informe a chave apenas na página de resultado, imediatamente antes da checagem. Na página inicial, a opção configura esse comportamento sem pedir a chave duas vezes. A chave temporária não é gravada em `localStorage`, `sessionStorage`, cookies ou URL; atualizar ou fechar a página exige informá-la novamente. Essa opção controla apenas a chave: o histórico continua local e o texto confirmado ainda é enviado ao servidor e à Groq.
 
 A chave **não é persistida no servidor**. Ela é enviada no corpo da requisição de início, mantida em memória enquanto o job existe e usada para chamar o Groq SDK. Em produção, sirva a aplicação por HTTPS para proteger esse tráfego.
 
@@ -494,27 +529,82 @@ O evento terminal é `result` (com o dossiê completo) ou `error` (com uma mensa
 | `429` | Limite de requisições atingido. |
 | `503` | Capacidade de jobs pendentes esgotada. |
 
+## Extensão para navegador
+
+**✅ Implementada para Chrome/Edge e Firefox.** A extensão está na versão **1.1.4**, com código em [`extension/`](extension/README.md) e pacotes separados para cada plataforma. A aplicação web permanece na versão **2.0.0**.
+
+Verifique a notícia da **aba ativa** ou um **trecho selecionado**, revise o conteúdo antes de enviar e acompanhe o mesmo pipeline do site. Pesquisa, progresso, resultado, comparação, configuração e histórico ficam **inteiramente no popup**, sem abrir uma página de análise. Usando a API oficial da Vercel, o usuário não precisa instalar Node.js nem executar servidor local.
+
+| Capacidade | Implementação disponível |
+| :--- | :--- |
+| **Leitura da aba ativa** | Extrair título, URL e corpo com Readability; revisar antes de enviar o necessário à API oficial ou local configurável. |
+| **Menu de contexto** | Ações "Verificar seleção" e "Verificar esta página" ao clicar com o botão direito. |
+| **Popup completo** | Pesquisa, prévia editável, progresso, veredito, Grau de Veracidade, fontes, comparador, configuração e histórico, sem abrir abas. Pode fechar e reabrir sem interromper uma checagem iniciada. |
+| **Badge no ícone** | Indicador de cor (verde, âmbar, vermelho ou cinza) conforme o resultado da última checagem. |
+| **Análise completa** | Dossiê dividido em **Resumo**, **Fontes**, **Comparar** e **Detalhes**, sem repetir a checagem. Resumo e conteúdo enviado podem ser expandidos integralmente. |
+| **Configuração** | Endpoint e preferências locais; chave opcionalmente salva em `storage.local` ou usada somente em memória com “Não salvar nesse dispositivo”. |
+| **Compatibilidade** | Chrome/Edge 127+ com Manifest V3 e executor offscreen; Firefox 140+ com Manifest V2 e background persistente. A continuidade não depende do popup aberto. |
+| **Privacidade** | Nenhum histórico de navegação é coletado; o conteúdo da aba só é lido sob ação explícita do usuário. |
+| **Distribuição** | Pacotes locais gerados no repositório. Publicação na Chrome Web Store e nos Firefox Add-ons permanece pendente. |
+
+### Instalar e usar
+
+Para gerar os pacotes a partir do código-fonte, use Node.js >=20.18.1 e execute na raiz:
+
+```bash
+npm ci
+npm run build:extension
+```
+
+1. **Chrome/Edge:** abra `chrome://extensions` ou `edge://extensions`, ative o modo desenvolvedor e carregue sem compactação a pasta `dist/extension/chrome`.
+2. **Firefox:** abra `about:debugging#/runtime/this-firefox`, escolha “Carregar extensão temporária” e selecione `dist/extension/firefox/manifest.json`. Essa instalação é temporária; distribuição permanente exige assinatura.
+3. Abra o popup e acesse **Chave API** para salvar sua chave ou escolher **“Não salvar nesse dispositivo”**. Em “Pesquisa avançada e conexão”, mantenha `https://verifica-ai-five.vercel.app` ou configure sua API local.
+4. Na página desejada, use **“Verificar esta página”**, **“Verificar seleção”** ou o menu de contexto. Revise o trecho e confirme o envio. O limite é de 20.000 caracteres, sem corte automático.
+5. Pode fechar o popup enquanto a análise executa. Ao reabrir, acompanhe o progresso ou consulte o resultado e o histórico, que são separados dos dados do site.
+
+Para gerar ZIPs, execute `npm run package:extension` (requer o utilitário `zip`). Os arquivos atuais são `dist/extension/verificaai-chrome-1.1.4.zip` e `dist/extension/verificaai-firefox-1.1.4.zip`. Esse comando não publica nas lojas. Ao atualizar uma instalação de desenvolvimento, recarregue a extensão no navegador.
+
+### Interface compacta e continuidade da análise
+
+- **Identidade do site:** logo, CSS e componentes reais do projeto, com fontes locais e temas claro/escuro. Os textos da interface explicam as ações disponíveis, sem anúncios de funcionalidades não implementadas.
+- **Dimensões controladas:** largura de 580 px definida no `html` e no `body`; pesquisa com 360 px de altura (440 px com análise recente) e demais telas com até 520 px, adaptadas à altura efetivamente disponibilizada pelo navegador.
+- **Sem uma página longa dentro do popup:** cabeçalho e rodapé permanecem visíveis; a área central rola quando necessário. O resumo começa em até três linhas e pode ser expandido. As abas do dossiê têm navegação por teclado.
+- **Compatibilidade de tamanho:** removida a dependência de `vw`/`dvh` na raiz, que causava colapso do popup nativo no Chrome. A largura explícita do `body` atende ao dimensionamento do Firefox e evita a faixa lateral vazia.
+- **Execução independente:** no Chrome/Edge, um documento offscreen hospeda o worker; no Firefox, ele é hospedado no background persistente. Fechar o popup não encerra a checagem. Apenas uma análise executa por vez; outros rascunhos podem aguardar.
+- **Retenção local:** até 50 resultados e 10 rascunhos/erros recentes, além de jobs ativos. Não há sincronização automática entre site e extensão.
+
+> **Limite de continuidade:** fechar o navegador, desativar/recarregar a extensão ou perder a conexão pode interromper uma execução. Resultados concluídos permanecem no histórico local. Não há retomada automática do token SSE; uma nova tentativa exige confirmação e pode consumir cota novamente. Interromper o recebimento não garante cancelar o processamento já iniciado no servidor.
+
+Detalhes técnicos, checklist de navegadores e política de privacidade: [`extension/README.md`](extension/README.md) e [`extension/PRIVACY.md`](extension/PRIVACY.md).
+
+## Testes e validação
+
+```bash
+# Contratos, armazenamento da chave, parser SSE e executor
+npm test
+
+# Gera a extensão e executa os fluxos de navegador
+npm run test:browser
+
+# Executa sem gerar capturas de revisão
+CAPTURE_REVIEW=0 npm run test:browser
+```
+
+A execução atual passou por **18 testes unitários e 2 testes de navegador em Chromium**, sem credenciais reais. A cobertura inclui:
+
+- Modos de chave persistente e temporária, remoção de chave antiga e ausência de segredo nos registros locais de análise.
+- Validação de endpoint, texto, opções, resultado e URLs de fontes.
+- Parser SSE incremental, UTF-8 fragmentado, erros e encerramento sem resultado.
+- Captura explícita, revisão, histórico, comparação, concorrência e prevenção de checagens duplicadas.
+- Fechar/reabrir o popup e encerrar deliberadamente o service worker do Chrome durante uma análise, preservando o executor sem nova chamada à API.
+- Abertura do **popup nativo** por `action.openPopup`, sem viewport simulado: dimensões, logo, rodapé e largura do corpo igual à janela.
+- Layout compacto, abas por teclado e acesso ao resumo completo e ao conteúdo enviado.
+
+O Chromium deve estar instalado; `CHROMIUM_PATH` pode indicar seu executável. Os testes de fluxo usam uma **API HTTP/SSE simulada**, não uma checagem real na Groq. Foram realizados testes manuais de desenvolvimento em Chrome e Firefox; automação nativa Firefox, validação específica Edge e o checklist completo de distribuição continuam pendentes. O pacote Firefox passou no `web-ext lint` sem erros, com dois avisos internos do Readability, usado somente para extrair texto de uma cópia do DOM. A auditoria completa de acessibilidade e a integração contínua também permanecem no roadmap.
+
 ## Roadmap
 
-O VerificaAI está **funcional em sua versão 2.0.0**. O roadmap abaixo prioriza usabilidade cotidiana, rigor metodológico e sustentabilidade do projeto.
-
-### Extensão para Navegador (Chrome/Firefox) — próximo marco
-
-> **Objetivo:** permitir que o usuário verifique a notícia da **aba ativa** — ou um trecho selecionado — sem abrir a interface web completa. A extensão atua como uma camada de consulta rápida sobre o mesmo motor de verificação, preservando a metodologia e o Grau de Veracidade.
-
-| Capacidade | Escopo planejado |
-| :--- | :--- |
-| **Leitura da aba ativa** | Extrair título, URL e corpo do artigo com um leitor de conteúdo (Readability), enviando apenas o necessário à API local. |
-| **Menu de contexto** | Ações "Verificar seleção" e "Verificar esta página" ao clicar com o botão direito. |
-| **Popup de veredito** | Exibir veredito, Grau de Veracidade e as três principais fontes em um painel compacto. |
-| **Badge no ícone** | Indicador de cor (verde, âmbar, vermelho ou cinza) conforme o resultado da última checagem. |
-| **Deep link** | Botão "Abrir análise completa" para o dossiê na interface web, com o comparador de fontes. |
-| **Configuração** | Endpoint da API e chave Groq armazenados no `chrome.storage.local` / `browser.storage.local`. |
-| **Compatibilidade** | Manifest V3 para Chrome/Edge e WebExtensions para Firefox. |
-| **Privacidade** | Nenhum histórico de navegação é coletado; o conteúdo da aba só é lido sob ação explícita do usuário. |
-| **Distribuição** | Publicação na Chrome Web Store e nos Firefox Add-ons, com código-fonte no mesmo repositório. |
-
-### Próximas iniciativas
+O VerificaAI está **funcional em sua versão 2.0.0**, com a **extensão 1.1.4 concluída e disponível para instalação local**. As próximas iniciativas priorizam rigor metodológico, distribuição e sustentabilidade do projeto.
 
 | Status | Iniciativa | Descrição |
 | :---: | :--- | :--- |
@@ -524,12 +614,15 @@ O VerificaAI está **funcional em sua versão 2.0.0**. O roadmap abaixo prioriza
 | ✅ | Histórico local | Persistência no navegador, com detalhes, exclusão e limite de 50 itens. |
 | ✅ | Hardening de segurança | SSRF, prompt injection, rate limiting, Helmet, CSP e tokens de uso único. |
 | ✅ | Deploy público | Instância de demonstração publicada na Vercel: [verifica-ai-five.vercel.app](https://verifica-ai-five.vercel.app/). |
-| 🚧 | **Extensão Chrome/Firefox** | Checagem da aba ativa, menu de contexto e popup de veredito. |
+| ✅ | **Extensão Chrome/Edge e Firefox** | Checagem da página/seleção, revisão, progresso em segundo plano e dossiê completo no popup, com configuração e histórico locais. |
+| ✅ | **Chave opcionalmente persistida** | “Não salvar nesse dispositivo” disponível no site e na extensão, sem incluir a chave no histórico. |
+| ✅ | **Testes automatizados do site e extensão** | Contratos, SSE, armazenamento, executor, fluxo Chromium e dimensionamento do popup nativo. |
+| 🗺️ | **Publicação das extensões nas lojas** | Assinatura, materiais e publicação na Chrome Web Store e nos Firefox Add-ons; ampliar validação de navegadores. |
 | 🚧 | **Filtros de fontes confiáveis** | Allowlist/denylist de veículos, peso por reputação, diversidade de domínios e priorização de agências de fact-checking. |
 | 🚧 | **Exportação de relatórios** | PDF com metodologia, fontes e timestamp; JSON para pesquisa; Markdown para publicação. |
 | 🗺️ | **Feedback do usuário** | Botão "A IA errou?" com registro de correções para avaliação e melhoria dos prompts. |
 | 🗺️ | **Dashboard de desinformação** | Estatísticas agregadas do histórico local: temas recorrentes, vereditos e tendências. |
-| 🗺️ | **Testes e CI** | Testes unitários para `url-safety.js` e parsers, integração com Groq mockada, E2E com Playwright e GitHub Actions. |
+| 🗺️ | **CI e ampliação da cobertura** | GitHub Actions, testes adicionais de `url-safety.js` e pipeline com Groq mockada, além de automação Firefox/Edge. |
 | 🗺️ | **Deploy reprodutível** | `Dockerfile`, `docker-compose` e guias para Render, Railway e Fly.io. |
 | 🗺️ | **Internacionalização** | Interface em inglês e espanhol, com detecção de idioma e textos externalizados. |
 | 🗺️ | **CSP sem `unsafe-inline`** | Migrar handlers inline para `addEventListener` e adotar nonces. |
@@ -611,6 +704,8 @@ Distribuído sob a **Licença MIT**. Consulte [`LICENSE`](LICENSE) para o texto 
 
 **Documentação interna**
 
+- [`extension/README.md`](extension/README.md) — instalação, execução, empacotamento e testes da extensão concluída.
+- [`extension/PRIVACY.md`](extension/PRIVACY.md) — captura, armazenamento local e tratamento da chave na extensão.
 - [`CONTEXT.md`](CONTEXT.md) — estado do projeto, decisões técnicas e instruções de continuidade.
 - [`PRODUCT.md`](PRODUCT.md) — público, posicionamento, princípios e restrições.
 - [`DESIGN.md`](DESIGN.md) — design system Editorial Broadsheet.

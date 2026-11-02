@@ -22,13 +22,15 @@ Interface de trabalho de alta densidade informativa e escaneabilidade, operando 
 - Pipeline documentário em 4 etapas: Extração de termos-chave, varredura de RSS jornalístico, leitura de conteúdo integral e julgamento factual estruturado.
 - Grau de Veracidade estrito com limiares acadêmicos: Falso (0-29%), Parcialmente Verdadeiro (30-69%), Factual/Verídico (70-100%), ou `?` na ausência de evidências na web.
 - Comparador analítico lado a lado de fontes com categorização de postura (`confirma`, `contradiz`, `neutro`).
-- Histórico local em arquivo JSON.
+- Histórico local no navegador, limitado a 50 verificações, sem persistência no servidor.
+- Extensão Chrome/Edge e Firefox com captura explícita e toda a interação no popup, fiel à interface do site. Checagens continuam em um executor independente ao fechar o popup; API oficial ou local, sem persistência adicional no servidor.
+- Chave opcionalmente salva no navegador; modo “Não salvar nesse dispositivo” mantém o segredo apenas em memória. Sem promessa de proteção contra malware.
 
 ## Brand Commitments
 VerificaAI — Desk de Investigação e Checagem Factual. Identidade visual inspirada em jornais de referência e publicações acadêmicas (Broadsheet & Archival).
 
 ## Evidence on Hand
-Repositório Node.js com motor de busca/scraping em `checker.js`, persistência em `history.js`, rotas em `server.js` e templates limpos.
+Repositório Node.js com motor de busca/scraping em `checker.js`, histórico no navegador, rotas em `server.js`, templates e extensão em `extension/`. Site oficial: https://verifica-ai-five.vercel.app.
 
 ## Product Principles
 1. **Rigor Documental:** Fatos verificados mediante evidência cruzada e rastreável.

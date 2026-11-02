@@ -1,5 +1,6 @@
 # =============================================================================
-# VerificaAI — configuração de deploy estático na Netlify
+# VerificaAI — configuração legada de deploy estático na Netlify
+# Site oficial: https://verifica-ai-five.vercel.app
 # =============================================================================
 # O build copia os templates HTML para a raiz de dist/ e os assets para
 # dist/static/, mantendo as referências absolutas /static/... usadas no HTML.
@@ -42,11 +43,11 @@
   status = 200
   
 # =============================================================================
-# Encaminha chamadas de API para o backend no Render
+# Encaminha chamadas de API para a instância oficial na Vercel
 # =============================================================================
 [[redirects]]
   from = "/api/*"
-  to = "https://verifica-ai-backend.onrender.com/api/:splat"
+  to = "https://verifica-ai-five.vercel.app/api/:splat"
   status = 200
   force = true
 # -----------------------------------------------------------------------------

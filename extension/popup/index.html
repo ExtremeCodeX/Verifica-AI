@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>VerificaAI — Desk de checagem</title>
+    <link rel="stylesheet" href="../shared/fonts.css">
+    <link rel="stylesheet" href="../vendor/site-global.css">
+    <link rel="stylesheet" href="../vendor/site-pesquisa.css">
+    <link rel="stylesheet" href="../vendor/site-resultado.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- THESIS: o mesmo desk de checagem do site, dentro do popup. OWN-WORLD: logo e folhas de estilo reais do projeto, fontes locais. STORY: capturar, revisar, acompanhar e comparar sem abrir abas. FIRST VIEWPORT: masthead original, navegação e hero de pesquisa. FORM: adaptação compacta da interface existente; executor independente da interface. -->
+<header>
+    <button class="logo-link" id="home-logo" type="button" aria-label="Ir para pesquisa"><img class="brand-logo" src="../assets/Logo_header.png" alt="VerificaAI"></button>
+    <nav aria-label="Navegação principal"><ul>
+        <li><button class="nav-link active" id="nav-search" type="button">Pesquisa</button></li>
+        <li><button class="nav-link" id="nav-history" type="button">Histórico</button></li>
+        <li><button class="nav-link" id="nav-settings" type="button">Chave API</button></li>
+    </ul></nav>
+</header>
+<main id="main">
+    <p id="status" class="status-message" role="status" aria-live="polite"></p>
+    <section id="view-search">
+        <div class="hero">
+            <h1>Cheque a veracidade de<br><span class="gradient-text">qualquer notícia</span></h1>
+            <p class="hero-sub">Confira a página aberta ou um trecho selecionado com fontes jornalísticas em tempo real.</p>
+            <div class="capture-actions"><button class="btn-primary" id="page" type="button">Verificar esta página</button><button class="btn-secondary" id="selection" type="button">Verificar seleção</button></div>
+            <p class="helper">Você revisa o conteúdo antes do envio. Nenhuma leitura automática da sua navegação.</p>
+        </div>
+        <button class="resume-button" id="resume" type="button" hidden></button>
+    </section>
+
+    <section id="view-analysis" hidden>
+        <div class="analysis-heading"><button id="back" class="text-button" type="button">Voltar à pesquisa</button><h1 id="title">Revisar notícia</h1><a id="source" target="_blank" rel="noopener noreferrer"></a></div>
+        <p id="notice" class="notice" hidden></p>
+        <form id="review" hidden>
+            <label for="text">Revise o trecho que deseja verificar</label>
+            <div class="search-bar"><textarea id="text" rows="4" required aria-describedby="count" placeholder="Cole aqui o texto da notícia…"></textarea></div>
+            <p id="count" class="helper"></p>
+            <div id="credentials" class="credential-field"><label for="api-key">Chave da API Groq</label><input type="password" id="api-key" autocomplete="off" spellcheck="false" placeholder="gsk_…"></div>
+            <label class="api-key-choice"><input id="api-temporary" type="checkbox"> Não salvar nesse dispositivo</label>
+            <p id="privacy" class="helper"></p>
+            <details class="review-info"><summary>Conexão e privacidade do envio</summary><p id="endpoint-description" class="helper"></p><p class="helper">Envie apenas conteúdo público necessário à checagem. O texto e a chave passam pela API e pela Groq. O histórico continua local.</p></details>
+            <button id="start" class="btn-primary full-width" type="submit">Confirmar envio e verificar</button>
+        </form>
+
+        <div class="apuration-box" id="progress" hidden role="region" aria-label="Progresso da apuração">
+            <div class="apuration-visual" aria-hidden="true"><div class="anim-pulse" id="progress-animation"></div></div>
+            <div class="apuration-status-tag" id="step">Etapa 1 de 4</div>
+            <div class="apuration-title" id="progress-title">Apuração em andamento</div>
+            <div class="apuration-detail" id="progress-detail"></div>
+            <div class="apuration-progress-dots" aria-hidden="true"><span class="ap-dot"></span><span class="ap-dot"></span><span class="ap-dot"></span><span class="ap-dot"></span></div>
+            <p class="helper">Pode fechar este popup. A análise continua em segundo plano e o resultado ficará no histórico.</p>
+            <button id="stop" class="text-button" type="button">Interromper recebimento</button>
+        </div>
+        <button id="retry" class="btn-primary" type="button" hidden>Revisar e tentar novamente</button>
+        <div id="result" class="result-stack"></div>
+    </section>
+
+    <section id="view-history" hidden>
+        <div class="section-heading"><h1>Histórico de verificações</h1><p>Suas apurações neste navegador, sem sincronização com o site.</p></div>
+        <button id="clear" class="btn-secondary" type="button">Limpar histórico e rascunhos</button><div id="history"></div>
+    </section>
+
+    <section id="view-settings" hidden>
+        <div class="section-heading"><h1>Configurar Chave da API Groq</h1><p>Configure sua chave e as opções de checagem.</p></div>
+        <form id="settings">
+            <label for="key">Chave da API Groq</label><div class="modal-input-group"><input id="key" type="password" autocomplete="off" spellcheck="false" placeholder="gsk_…"><button id="show-key" class="btn-toggle-pass" type="button">Exibir</button></div>
+            <p id="key-status" class="helper"></p>
+            <label class="api-key-choice"><input id="temporary" type="checkbox"> Não salvar nesse dispositivo</label>
+            <p id="settings-privacy" class="helper"></p>
+            <div class="actions"><button id="remove-key" class="text-button" type="button">Remover chave</button><a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer">Obter chave gratuita no Groq</a></div>
+            <details><summary>Pesquisa avançada e conexão</summary>
+                <label for="endpoint">Endereço da API</label><input id="endpoint" type="url" required placeholder="https://verifica-ai-five.vercel.app">
+                <p class="helper">Servidor oficial ou instância local, como http://localhost:3000. Configure apenas servidores em que confia.</p>
+                <div class="settings-grid">
+                    <div><label for="articles">Número de artigos</label><input id="articles" type="number" min="3" max="20" required></div>
+                    <div><label for="language">Idioma da busca</label><select id="language"><option value="auto">Automático</option><option value="pt">Português</option><option value="en">English</option></select></div>
+                    <div><label for="summary">Tamanho do resumo</label><select id="summary"><option value="curto">Curto</option><option value="medio">Médio</option><option value="detalhado">Detalhado</option></select></div>
+                    <div><label for="model">Modelo de IA</label><select id="model"><option value="openai/gpt-oss-120b">GPT-OSS 120B</option><option value="openai/gpt-oss-20b">GPT-OSS 20B</option></select></div>
+                </div>
+                <label class="api-key-choice"><input id="strict" type="checkbox"> Modo rigoroso — exige três fontes independentes</label>
+                <label for="theme">Tema</label><select id="theme"><option value="system">Acompanhar sistema</option><option value="light">Claro</option><option value="dark">Escuro</option></select>
+            </details>
+            <button class="btn-primary full-width" type="submit">Salvar preferências</button>
+        </form>
+        <p class="helper">A opção de não salvar se aplica apenas à chave. O histórico continua neste navegador.</p>
+    </section>
+</main>
+<footer><div class="footer-disclaimer">A análise utiliza IA, podem existir erros.</div></footer>
+<script type="module" src="main.js"></script>
+</body></html>

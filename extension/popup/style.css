@@ -1,0 +1,112 @@
+/* Adaptação de espaço, não um design paralelo: os componentes vêm do CSS do site. */
+/* O navegador calcula o tamanho do popup pelo documento. Limites em vw/dvh aqui
+   criam um ciclo com o viewport inicial de 25px e fazem a janela colapsar. */
+html { width: 580px; height: 520px; overflow: hidden; scroll-behavior: auto; scrollbar-color: var(--color-primary) var(--paper-subtle); }
+html[data-view="search"] { height: 360px; }
+html[data-view="search"][data-resume="true"] { height: 440px; }
+/* Firefox mede a largura preferida pelo body em modo standards. Uma porcentagem
+   aqui permite que a janela cresça a 800px, mesmo com html e conteúdo a 580px. */
+body { height: 100%; min-height: 0; padding-bottom: 0; width: 580px; font-size: 16px; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; overflow: hidden; }
+::selection { background: var(--color-primary); color: var(--color-primary-contrast); }
+header { position: static; padding: 8px 18px; gap: 16px; }
+.logo-link { background: none; border: 0; cursor: pointer; flex-shrink: 0; }
+.brand-logo { height: 32px; }
+header nav { display: block; }
+nav ul { gap: 2px; }
+.nav-link { font: 500 10px/1.5 var(--font-mono); color: var(--color-header-text-muted); text-transform: uppercase; letter-spacing: .04em; padding: 8px; background: none; border: 1px solid transparent; border-radius: var(--radius-sm); cursor: pointer; }
+.nav-link:hover { color: var(--color-header-text); background: var(--color-header-bg-hover); border-color: var(--color-header-border); }
+.nav-link.active { color: var(--color-header-active-text); background: var(--color-header-active-bg); }
+main { min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; padding: 14px 18px 16px; scrollbar-gutter: stable; }
+.hero { padding-top: 10px; }
+.hero h1 { font-size: 30px; margin: 0 0 12px; }
+.hero-sub { font-size: 16px; margin-bottom: 18px; }
+.capture-actions { display: flex; width: 100%; gap: 12px; }
+.capture-actions button { flex: 1; }
+.helper { color: var(--ink-muted); font-size: 14px; line-height: 1.45; margin: 6px 0; overflow-wrap: anywhere; }
+.hero .helper { max-width: 45ch; }
+button, input, select, textarea { font-family: inherit; }
+button { cursor: pointer; }
+button:disabled { opacity: .6; cursor: not-allowed; }
+.btn-secondary { padding: 9px 12px; border: 1px solid var(--border-dark); border-radius: var(--radius-sm); background: var(--paper-card); color: var(--color-primary); font: 500 11px/1.5 var(--font-mono); text-transform: uppercase; letter-spacing: .06em; }
+.btn-primary { padding: 9px 12px; }
+.btn-secondary:hover { background: var(--paper-subtle); }
+.full-width { width: 100%; }
+.text-button { border: 0; background: transparent; color: var(--color-primary); text-decoration: underline; text-underline-offset: 3px; padding: 6px 0; font-size: 14px; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 6px 0 12px; }
+.actions a, #source { color: var(--color-primary); text-decoration: underline; text-underline-offset: 3px; }
+.status-message:empty { display: none; }
+.status-message { margin-bottom: 6px; color: var(--color-info); font-size: 14px; overflow-wrap: anywhere; }
+.status-message.error { color: var(--color-danger); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.analysis-heading h1, .section-heading h1 { font: 600 22px/1.2 var(--font-display); margin: 2px 0; overflow-wrap: anywhere; }
+.analysis-heading h1 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.analysis-heading { margin-bottom: 10px; }
+.analysis-heading .text-button { padding: 0; line-height: 1.3; }
+#source { display: block; font-size: 13px; line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.section-heading { margin-bottom: 12px; }
+.section-heading p { color: var(--ink-muted); }
+label { display: block; margin-bottom: 4px; font-size: 14px; }
+input:not([type="checkbox"]), select { width: 100%; padding: 7px 10px; margin: 4px 0 8px; color: var(--color-input-text); background: var(--color-input-bg); border: 1px solid var(--color-input-border); border-radius: var(--radius-sm); font-size: 16px; caret-color: var(--color-primary); }
+input::placeholder, textarea::placeholder { color: var(--color-input-placeholder); }
+.search-bar { padding: 6px; }
+.search-bar textarea { width: 100%; min-height: 76px; height: 76px; max-height: 150px; resize: vertical; padding: 2px 6px; line-height: 1.45; }
+.credential-field { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; margin-top: 6px; }
+.credential-field label { margin: 0; }
+.credential-field input { margin: 0; }
+.modal-input-group { margin-bottom: 0; }
+.modal-input-group input { margin: 0; }
+.api-key-choice { margin-block: 6px; }
+.api-key-choice input { flex-shrink: 0; }
+.notice { padding: 12px; border: 1px solid var(--color-primary-border); background: var(--color-primary-subtle); margin: 12px 0; font-size: 14px; }
+.apuration-box { padding: 16px; gap: 10px; }
+.apuration-title { font-size: 22px; }
+.apuration-visual { width: 50px; height: 50px; }
+.apuration-visual .anim-pulse { width: 24px; height: 24px; }
+.apuration-box .helper { margin: 0; }
+.result-stack { display: flex; flex-direction: column; gap: 10px; }
+.verdict-card { padding: 12px 16px; gap: 16px; }
+.verdict-score { width: 60px; height: 60px; font-size: 20px; }
+.verdict-label { font-size: 22px; }
+.verdict-sub { font-size: 11px; }
+.resumo-card, .artigos-card { padding: 12px 16px; }
+.resumo-card h3, .artigos-card h3 { font-size: 18px; line-height: 1.25; margin-bottom: 6px; padding-bottom: 4px; }
+.resumo-card p { font-size: 16px; line-height: 1.5; }
+.result-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; border-bottom: 1px solid var(--border-ink); padding-bottom: 6px; }
+.result-tab { padding: 7px 4px; background: var(--paper-card); color: var(--color-primary); border: 1px solid var(--border-ink); border-radius: var(--radius-sm); font: 500 11px/1.4 var(--font-mono); }
+.result-tab:hover { background: var(--paper-subtle); }
+.result-tab[aria-selected="true"] { color: var(--color-btn-text); background: var(--color-btn-bg); border-color: var(--color-btn-border); }
+.result-panel { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.summary-excerpt { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.summary-excerpt.expanded { display: block; overflow: visible; }
+.result-stack p { overflow-wrap: anywhere; }
+.result-stack ul { padding-left: 20px; }
+.artigo-link { overflow-wrap: anywhere; }
+.comparacao-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+.comparacao-coluna { padding: 14px; min-width: 0; }
+.comparacao-fonte-nome, .comparacao-resumo { overflow-wrap: anywhere; }
+details { margin-top: 10px; border-block: 1px solid var(--border-ink); padding: 8px 0; }
+summary { cursor: pointer; color: var(--color-primary); font-weight: 600; }
+details > label, details > .settings-grid { margin-top: 16px; }
+.input-text { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; margin-top: 8px; }
+.review-info { margin: 8px 0; font-size: 14px; }
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+#settings > .btn-primary { margin-top: 10px; }
+.resume-button { display: block; width: 100%; margin-top: 24px; padding: 14px 16px; border: 1px solid var(--color-primary-border); color: var(--color-primary); background: var(--color-primary-subtle); text-align: left; font-size: 15px; }
+.history-item { padding: 12px 0; border-bottom: 1px solid var(--border-ink); }
+.history-item h2 { font: 600 21px/1.25 var(--font-display); overflow-wrap: anywhere; margin-bottom: 6px; }
+.history-item .actions { margin-bottom: 0; }
+footer { position: static; padding: 7px 16px; font-size: 12px; }
+[hidden] { display: none !important; }
+@media (max-width: 460px) {
+    header { padding: 10px 12px; gap: 8px; flex-wrap: wrap; }
+    .brand-logo { height: 32px; }
+    .nav-link { font-size: 9px; padding: 7px 6px; }
+    main { padding: 12px 14px; }
+    .hero h1 { font-size: 28px; }
+    .capture-actions { flex-direction: column; }
+    .verdict-card { padding: 12px; gap: 12px; flex-direction: row; text-align: left; }
+    .verdict-score { width: 56px; height: 56px; font-size: 18px; }
+    .verdict-label { font-size: 21px; }
+    .comparacao-grid, .settings-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }

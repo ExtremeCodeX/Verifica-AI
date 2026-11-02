@@ -72,8 +72,25 @@ document.addEventListener('DOMContentLoaded', function () {
     initTheme();
 });
 
+// A chave temporária pertence apenas a este documento; nunca atravessa a navegação.
+var temporaryApiKey = '';
+var startPendingCheck = null;
+function isTemporaryKeyMode() {
+    return localStorage.getItem('groq_key_temporary') === 'true';
+}
 function getApiKey() {
-    return localStorage.getItem('groq_api_key') || '';
+    return isTemporaryKeyMode() ? temporaryApiKey : (localStorage.getItem('groq_api_key') || '');
+}
+function updateApiKeyMode() {
+    var temporary = document.getElementById('apiKeyTemporary').checked;
+    var deferKey = temporary && window.location.pathname !== '/resultado';
+    document.getElementById('apiKeyInput').disabled = deferKey;
+    document.getElementById('apiKeySave').textContent = temporary ? 'Usar sem salvar' : 'Salvar chave';
+    document.getElementById('apiKeyPrivacy').textContent = deferKey
+        ? 'Você informará a chave apenas na página de resultado, antes da checagem. Nenhuma chave será salva. O histórico continua local.'
+        : temporary
+            ? 'A chave fica apenas na memória desta página. Ao atualizar ou fechar, informe-a novamente. O histórico continua local.'
+            : 'Sua chave será salva para as próximas verificações.';
 }
 
 function openApiKeyModal() {
@@ -81,6 +98,8 @@ function openApiKeyModal() {
     var input = document.getElementById('apiKeyInput');
     if (modal && input) {
         input.value = getApiKey();
+        document.getElementById('apiKeyTemporary').checked = isTemporaryKeyMode();
+        updateApiKeyMode();
         modal.style.display = 'flex';
         input.focus();
     }
@@ -89,11 +108,15 @@ function openApiKeyModal() {
 function closeApiKeyModal() {
     var modal = document.getElementById('apiKeyModal');
     if (modal) modal.style.display = 'none';
+    var input = document.getElementById('apiKeyInput');
+    if (input) { input.value = ''; input.type = 'password'; }
+    var toggle = document.querySelector('.btn-toggle-pass');
+    if (toggle) toggle.textContent = 'Exibir';
 }
 
-function toggleApiKeyVisibility() {
+function toggleApiKeyVisibility(e) {
     var input = document.getElementById('apiKeyInput');
-    var btn = event.target;
+    var btn = (e || window.event).target;
     if (input) {
         if (input.type === 'password') {
             input.type = 'text';
@@ -109,29 +132,31 @@ function saveApiKey() {
     var input = document.getElementById('apiKeyInput');
     if (!input) return;
     var key = input.value.trim();
+    var temporary = document.getElementById('apiKeyTemporary').checked;
+    var deferKey = temporary && window.location.pathname !== '/resultado';
 
-    if (!key) {
+    if (!deferKey && !key.startsWith('gsk_')) {
         alert('Por favor, insira uma chave da API Groq válida.');
         return;
     }
 
-    if (!key.startsWith('gsk_')) {
-        alert('Aviso: As chaves da API Groq geralmente começam com "gsk_". Verifique se a chave está correta.');
+    if (temporary) {
+        localStorage.removeItem('groq_api_key');
+        localStorage.setItem('groq_key_temporary', 'true');
+        temporaryApiKey = deferKey ? '' : key;
+    } else {
+        localStorage.setItem('groq_api_key', key);
+        localStorage.removeItem('groq_key_temporary');
+        temporaryApiKey = '';
     }
-
-    localStorage.setItem('groq_api_key', key);
     closeApiKeyModal();
-
-    var btn = document.querySelector('.modal-primary, .btn-primary');
-    if (btn) {
-        var oldText = btn.textContent;
-        btn.textContent = 'Salvo com sucesso';
-        setTimeout(function() { btn.textContent = oldText; }, 1500);
-    }
+    if (startPendingCheck) startPendingCheck();
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    if (!getApiKey()) {
+    var mode = document.getElementById('apiKeyTemporary');
+    if (mode) mode.addEventListener('change', updateApiKeyMode);
+    if (!getApiKey() && !isTemporaryKeyMode() && window.location.pathname === '/') {
         setTimeout(function () {
             openApiKeyModal();
         }, 500);
@@ -180,7 +205,7 @@ function coletarOpcoes() {
 
 function buscar() {
     var apiKey = getApiKey();
-    if (!apiKey) {
+    if (!apiKey && !isTemporaryKeyMode()) {
         openApiKeyModal();
         return;
     }
@@ -226,46 +251,55 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var noticia = sessionStorage.getItem('noticiaParaVerificar');
     var opcoes  = JSON.parse(sessionStorage.getItem('opcoesVerificacao') || '{}');
-    var apiKey  = getApiKey();
-
-    if (!apiKey) {
-        setVerdict('nao-encontrada', 'ALERTA', 'Chave da API ausente', 'Configure sua chave Groq acessando o menu de Configuração de Chave API.');
-        ocultarApuration();
-        openApiKeyModal();
-        return;
-    }
 
     if (!noticia) {
         setVerdict('nao-encontrada', '—', 'Nenhuma notícia enviada',
-                   '<a href="/" style="color:var(--ink); text-decoration: underline;">Retornar à página de pesquisa</a>');
+                   'Retorne à página de pesquisa para enviar uma notícia.');
         ocultarApuration();
         return;
     }
 
-    fetch('/api/check/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ noticia: noticia, opcoes: opcoes, apiKey: apiKey })
-    })
-    .then(function (r) {
-        if (!r.ok) {
-            return r.json().then(function(errData) {
-                throw new Error(errData.erro || ('HTTP ' + r.status));
-            });
-        }
-        return r.json();
-    })
-    .then(function (data) {
-        if (data.erro) throw new Error(data.erro);
-        iniciarStream(data.token);
-    })
-    .catch(function (err) {
-        setVerdict('nao-encontrada', 'ALERTA', 'Erro de autenticação ou conexão', err.message);
-        ocultarApuration();
-        if (err.message.includes('API') || err.message.includes('chave')) {
+    var checkStarted = false;
+    function startCheck() {
+        if (checkStarted) return;
+        var apiKey = getApiKey();
+        if (!apiKey) {
+            setVerdict('nao-encontrada', 'ALERTA', 'Informe sua chave Groq', 'Configure a chave e escolha se deseja salvá-la neste navegador.');
+            ocultarApuration();
             openApiKeyModal();
+            return;
         }
-    });
+        checkStarted = true;
+        if (verdictCard) verdictCard.style.display = 'none';
+        if (apurationBox) apurationBox.style.display = 'block';
+        fetch('/api/check/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ noticia: noticia, opcoes: opcoes, apiKey: apiKey })
+        })
+        .then(function (r) {
+            if (!r.ok) {
+                return r.json().then(function(errData) {
+                    throw new Error(errData.erro || ('HTTP ' + r.status));
+                });
+            }
+            return r.json();
+        })
+        .then(function (data) {
+            if (data.erro) throw new Error(data.erro);
+            iniciarStream(data.token);
+        })
+        .catch(function () {
+            checkStarted = false;
+            setVerdict('nao-encontrada', 'ALERTA', 'Erro de autenticação ou conexão', 'Não foi possível iniciar. Confira a chave, a cota e a conexão e confirme novamente.');
+            ocultarApuration();
+            openApiKeyModal();
+        });
+        apiKey = '';
+        temporaryApiKey = '';
+    }
+    startPendingCheck = startCheck;
+    startCheck();
 
     function iniciarStream(token) {
         var resultadoRecebido = false;
@@ -308,7 +342,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 case 'error':
                     es.close();
-                    mostrarErroApuration(data.msg || 'Erro desconhecido');
+                    checkStarted = false;
+                    mostrarErroApuration('A apuração falhou. Confira sua chave e a cota Groq. Para tentar novamente, configure a chave no cabeçalho.');
                     break;
             }
         };
@@ -316,7 +351,8 @@ document.addEventListener('DOMContentLoaded', function () {
         es.onerror = function () {
             es.close();
             if (!resultadoRecebido) {
-                setVerdict('nao-encontrada', 'ALERTA', 'Conexão interrompida', 'Por favor, tente novamente.');
+                checkStarted = false;
+                setVerdict('nao-encontrada', 'ALERTA', 'Conexão interrompida', 'Não há retomada automática. Para tentar novamente, configure a chave no cabeçalho; isso pode consumir cota novamente.');
                 ocultarApuration();
             }
         };
@@ -392,7 +428,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         if (verdictScore) verdictScore.innerHTML = scoreHTML;
         if (verdictLabel) verdictLabel.textContent = labelText;
-        if (subText !== undefined && verdictSub) verdictSub.innerHTML = subText;
+        if (subText !== undefined && verdictSub) verdictSub.textContent = subText;
     }
 
     function renderizarResultado(resultado) {
