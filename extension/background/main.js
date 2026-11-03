@@ -54,7 +54,7 @@ async function capture(tabId, mode, selection) {
     const tab = await api.tabs.get(tabId);
     const url = safeUrl(tab.url);
     if (!url) throw new Error('Abra uma página HTTP/HTTPS. Páginas internas e lojas de extensões não permitem leitura.');
-    let text = '', title = tab.title || url, notice = '';
+    let text = '', title = tab.title || url, notice = '', extraction = { method: mode === 'selection' ? 'selection' : 'none' };
     if (mode === 'selection' && typeof selection === 'string') text = selection;
     else {
         try {
@@ -66,13 +66,15 @@ async function capture(tabId, mode, selection) {
                 const results = await api.scripting.executeScript({ target: { tabId }, files: ['content/extract.js'] });
                 text = results[0]?.result?.text || '';
                 title = results[0]?.result?.title || title;
+                extraction = { method: results[0]?.result?.method || 'none' };
+                notice = (results[0]?.result?.warnings || []).join(' ');
             }
         } catch { notice = 'Não foi possível ler esta página. Cole um trecho público no campo abaixo. Não contornamos bloqueios ou paywalls.'; }
     }
     if (!text && !notice) notice = 'Nenhum artigo ou seleção foi encontrado. Cole o trecho que deseja verificar.';
     // Impedir captura descontrolada, sem cortar conteúdo silenciosamente.
     if (text.length > 500000) { text = ''; notice = 'Página grande demais para captura. Cole um trecho de até 20.000 caracteres.'; }
-    const job = { id: crypto.randomUUID(), createdAt: new Date().toISOString(), sourceTabId: tab.id, sourceUrl: url, title: String(title).slice(0, 500), text, notice, status: 'draft' };
+    const job = { id: crypto.randomUUID(), createdAt: new Date().toISOString(), sourceTabId: tab.id, sourceUrl: url, title: String(title).slice(0, 500), text, notice, extraction, status: 'draft' };
     const all = await jobs();
     all.unshift(job); await save(all);
     await api.storage.local.set({ ui: { selectedId: job.id, view: 'analysis' } });

@@ -36,12 +36,12 @@
         <p id="notice" class="notice" hidden></p>
         <form id="review" hidden>
             <label for="text">Revise o trecho que deseja verificar</label>
-            <div class="search-bar"><textarea id="text" rows="4" required aria-describedby="count" placeholder="Cole aqui o texto da notícia…"></textarea></div>
-            <p id="count" class="helper"></p>
+            <div class="search-bar"><textarea id="text" rows="4" required aria-describedby="capture-method count notice" placeholder="Cole aqui o texto da notícia…"></textarea></div>
+            <p class="helper"><span id="count"></span> · <span id="capture-method"></span></p>
             <div id="credentials" class="credential-field"><label for="api-key">Chave da API Groq</label><input type="password" id="api-key" autocomplete="off" spellcheck="false" placeholder="gsk_…"></div>
             <label class="api-key-choice"><input id="api-temporary" type="checkbox"> Não salvar nesse dispositivo</label>
             <p id="privacy" class="helper"></p>
-            <details class="review-info"><summary>Conexão e privacidade do envio</summary><p id="endpoint-description" class="helper"></p><p class="helper">Envie apenas conteúdo público necessário à checagem. O texto e a chave passam pela API e pela Groq. O histórico continua local.</p></details>
+            <details class="review-info"><summary>Conexão e privacidade do envio</summary><p id="endpoint-description" class="helper"></p><p class="helper">O texto não é cortado automaticamente. Envie apenas conteúdo público necessário à checagem. O texto e a chave passam pela API e pela Groq. O histórico continua local.</p></details>
             <button id="start" class="btn-primary full-width" type="submit">Confirmar envio e verificar</button>
         </form>
 

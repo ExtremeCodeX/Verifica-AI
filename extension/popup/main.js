@@ -46,9 +46,10 @@ async function prepareReview(job) {
     }
     $('credentials').hidden = !!await savedKey();
     $('endpoint-description').textContent = `API: ${config.endpoint} · ${config.options.max_artigos} artigos · ${config.options.modelo}${config.options.rigoroso ? ' · modo rigoroso' : ''}. Ajuste em Chave API.`;
+    $('capture-method').textContent = ({ readability: 'Artigo via Readability', article: 'Contêiner editorial', selection: 'Seleção manual', none: 'Captura insuficiente' })[job.extraction?.method] || 'Texto para revisão';
     temporaryDescription(); count();
 }
-function count() { $('count').textContent = `${$('text').value.length.toLocaleString('pt-BR')} / 20.000 caracteres · sem corte automático`; }
+function count() { $('count').textContent = `${$('text').value.length.toLocaleString('pt-BR')} / 20.000 caracteres`; }
 async function renderJob(job) {
     const active = ACTIVE_STATES.includes(job.status), completed = job.status === 'done';
     $('title').textContent = job.title;
@@ -132,10 +133,17 @@ $('review').addEventListener('submit', async event => {
     event.preventDefault(); if (submitting) return;
     submitting = true; $('start').disabled = true;
     try {
+        const id = selectedId, endpoint = config.endpoint, original = $('text').value;
+        const text = validateText(original);
+        if (text !== original) {
+            $('text').value = text; count();
+            await send({ type: 'draft', id, text });
+            throw new Error('Espaços externos removidos. Revise o texto atualizado e confirme o envio novamente.');
+        }
         const permission = api.permissions.request({ origins: [hostPermission(config.endpoint)] });
-        const text = validateText($('text').value);
         if (!await permission) throw new Error('Permissão de acesso à API negada. Nada foi enviado.');
-        const request = send({ type: 'start', id: selectedId, text, endpoint: config.endpoint, key: $('api-key').value.trim(), temporary: $('api-temporary').checked });
+        if (selectedId !== id || config.endpoint !== endpoint || $('text').value !== text) throw new Error('A prévia foi alterada. Revise o texto e confirme o envio novamente.');
+        const request = send({ type: 'start', id, text, endpoint, key: $('api-key').value.trim(), temporary: $('api-temporary').checked });
         $('api-key').value = '';
         await request; await refresh();
     } catch (error) {

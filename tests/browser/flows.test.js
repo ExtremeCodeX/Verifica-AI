@@ -25,12 +25,13 @@ const result = {
 };
 
 test('popup completo: fechamento, reinício do service worker, SSE e histórico sem abas', { timeout: 120000 }, async () => {
-    let starts = 0, streams = 0, failure = false, delay = 800, holdStream = false;
+    let starts = 0, streams = 0, failure = false, delay = 800, holdStream = false, lastSubmittedText;
     const server = http.createServer(async (req, res) => {
         const pathname = new URL(req.url, 'http://localhost').pathname;
         if (pathname === '/api/check/start') {
             let body = ''; for await (const part of req) body += part;
             const input = JSON.parse(body); starts++;
+            lastSubmittedText = input.noticia;
             if (input.apiKey !== 'gsk_browser_test') { res.writeHead(401, { 'Content-Type': 'application/json' }); res.end('{"erro":"chave"}'); return; }
             res.writeHead(200, { 'Content-Type': 'application/json' }); res.end('{"token":"12345678-1234-1234-1234-123456789012"}'); return;
         }
@@ -107,6 +108,9 @@ test('popup completo: fechamento, reinício do service worker, SSE e histórico 
         await popup.locator('#review').waitFor({ state: 'visible' });
         assert.ok((await popup.locator('#text').inputValue()).includes('alegação pública'));
         assert.ok(!(await popup.locator('#text').inputValue()).includes('PRIVATE_FORM_DATA'));
+        assert.match(await popup.locator('#capture-method').textContent(), /Readability/);
+        const reviewedText = await popup.locator('#text').inputValue();
+        assert.ok(reviewedText.includes('Uma notícia verificável'));
         assert.equal(await worker.evaluate(async () => (await chrome.tabs.query({})).length), tabsBefore);
         await screenshot(popup, 'popup-review.png');
         assert.ok(await popup.locator('#start').evaluate(button => {
@@ -121,6 +125,7 @@ test('popup completo: fechamento, reinício do service worker, SSE e histórico 
         const popupAgain = await context.newPage(); await popupAgain.goto(`${extensionOrigin}/popup/index.html`);
         await popupAgain.setViewportSize({ width: 580, height: 520 });
         await popupAgain.locator('#result .verdict-card.verdadeira').waitFor();
+        assert.equal(lastSubmittedText, reviewedText, 'A API recebe exatamente o texto confirmado na prévia.');
         assert.equal(starts, 2); assert.equal(streams, 2);
         assert.equal(await worker.evaluate(async () => (await chrome.tabs.query({})).length), tabsBefore);
         assert.equal(await popupAgain.locator('#api-key').inputValue(), '');
@@ -182,6 +187,18 @@ test('popup completo: fechamento, reinício do service worker, SSE e histórico 
         const selected = await popupAgain.evaluate(tabId => chrome.runtime.sendMessage({ type: 'capture', tabId, mode: 'selection' }), sourceTab.id);
         assert.equal(selected.ok, true);
         const second = popupAgain; await second.locator('#review').waitFor({ state: 'visible' });
+        assert.match(await second.locator('#capture-method').textContent(), /Seleção manual/);
+        const startsBeforeReview = starts;
+        await second.locator('#text').fill('x'.repeat(20001));
+        await second.locator('#start').click();
+        await second.locator('#status').filter({ hasText: 'O limite é de 20.000' }).waitFor();
+        assert.equal(await second.locator('#text').inputValue(), 'x'.repeat(20001));
+        assert.equal(starts, startsBeforeReview);
+        await second.locator('#text').fill('  Alegação selecionada  ');
+        await second.locator('#start').click();
+        await second.locator('#status').filter({ hasText: 'confirme o envio novamente' }).waitFor();
+        assert.equal(await second.locator('#text').inputValue(), 'Alegação selecionada');
+        assert.equal(starts, startsBeforeReview, 'Mudanças na prévia exigem confirmação antes de enviar.');
         await second.locator('#text').fill('Alegação selecionada'); await second.locator('#api-key').fill('gsk_browser_test');
         failure = true;
         await second.locator('#start').click();

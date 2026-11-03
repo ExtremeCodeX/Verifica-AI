@@ -48,7 +48,7 @@ A revisão final teve parecer **SHIP restrito a Chromium e à fidelidade ao site
 ## Organização
 
 - `background/`: fila serial de jobs, captura explícita, menus, badge e coordenação do executor.
-- `content/`: Readability sobre uma cópia do DOM, sem formulários e sem acesso à chave.
+- `content/`: Readability sobre uma cópia do DOM, sem formulários e sem acesso à chave. A extração remove elementos ocultos (inclusive por CSS) e marcadores explícitos de anúncios, comentários, recomendações e compartilhamento. Preserva título, subtítulo identificado, parágrafos, listas, citações e correções, sem resumir nem cortar o texto. Se o Readability falhar, tenta apenas um contêiner editorial (`article`, `articleBody` ou `role="article"`) com pelo menos 80 caracteres além dos títulos e menos de 50% de texto em links; nunca usa o corpo inteiro da página como fallback. Extração insuficiente exige seleção/colagem manual. Textos curtos e sinalização de paywall geram avisos, não tentativas de desbloqueio. A seleção manual não recebe essa limpeza.
 - `runner/`: worker que executa HTTP/SSE independentemente do popup. No Chrome/Edge, um documento offscreen com motivo `WORKERS` hospeda o worker e é fechado ao terminar. No Firefox, o background persistente hospeda o mesmo worker. A chave temporária só transita em memória entre contextos internos confiáveis, nunca por storage ou content scripts.
 - `popup/`: toda a interação visível, incluindo configuração, histórico, prévia e dossiê; nunca é responsável pelo stream.
 - `shared/`: validação, cliente SSE incremental, configurações e renderização com `textContent` e URLs HTTP/HTTPS validadas.
@@ -63,6 +63,12 @@ npm run test:browser
 ```
 
 Os testes não usam credenciais reais. Os testes de navegador usam Playwright/Chromium e uma API HTTP/SSE simulada; `CHROMIUM_PATH` pode indicar o executável. A compatibilidade Firefox deve também passar pelo checklist manual antes de distribuição.
+
+`tests/browser/extraction.test.js` cobre 22 cenários do extrator compartilhado com documentos locais: ruído editorial, listas, tabelas, citações com links, datas, percentuais, correções, metadados, CSS externo interceptado em memória, ancestrais ocultos, blocos recolhidos, diferentes contêineres editoriais, fallback após falha/retorno incompleto do Readability, texto curto/longo, Unicode e carregamento dinâmico. Cada captura também verifica que o DOM original não foi alterado.
+
+`tests/browser/review.test.js` acrescenta 6 cenários com a extensão carregada no Chromium e servidor efêmero em loopback: seleção literal, envio integral de exatamente 20.000 unidades UTF-16, rejeição de 20.001 com emojis sem corte, captura acima de 500.000, persistência de edição ao reabrir e alteração do texto durante a autorização de permissão. O contrato atual usa `String.length` (UTF-16), não contagem de grafemas. O fluxo completo em `flows.test.js` verifica também a prévia confirmada, a nova confirmação após ajuste de espaços externos e o ciclo de análise em segundo plano. Somado ao teste de dimensões do popup, são **30 cenários executáveis de navegador**; o Node também contabiliza os dois testes agrupadores, reportando **32 testes**. Os agrupadores não são cenários adicionais.
+
+Os testes usam apenas o Chromium já instalado (`CHROMIUM_PATH`, ou `/usr/bin/chromium`); nenhum comando de instalação de navegador é executado. As páginas são sintéticas e as APIs são simuladas, sem acesso a portais ou uso de chave real. Isso não certifica a extração em todos os portais nem o funcionamento nativo em Firefox/Edge; conteúdo ainda não carregado, imagens de texto, shadow DOM e iframes não são extraídos. Novas capturas continuam dependendo de uma ação explícita do usuário.
 
 As capturas de teste ficam em `/tmp/opencode/verificaai-tests/review`; use `CAPTURE_REVIEW=0` para executar somente as verificações funcionais. Neste ambiente, `web-ext lint` validou o pacote Firefox sem erros, com dois avisos de `innerHTML` dentro do Readability. Essa biblioteca opera sobre uma cópia do documento; a extensão consome apenas seu texto, nunca renderiza o HTML extraído. Os avisos não foram ocultados nem a biblioteca alterada.
 
