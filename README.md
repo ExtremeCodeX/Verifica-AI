@@ -588,7 +588,7 @@ npm run test:browser
 
 # Executa sem gerar capturas de revisão
 CAPTURE_REVIEW=0 npm run test:browser
-```
+``` 
 
 A execução atual passou por **18 testes unitários e 2 testes de navegador em Chromium**, sem credenciais reais. A cobertura inclui:
 
