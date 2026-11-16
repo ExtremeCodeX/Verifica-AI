@@ -513,7 +513,7 @@ data: {"type":"step","step":1,"msg":"Extraindo palavras-chave e termos essenciai
 data: {"type":"keywords","idioma":"pt","keywords":["Copa do Mundo","2014","Brasil"]}
 
 data: {"type":"articles_found","count":10}
-```
+``` 
 
 O evento terminal é `result` (com o dossiê completo) ou `error` (com uma mensagem controlada).
 
